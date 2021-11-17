@@ -1,6 +1,9 @@
 import torch
+import torch.nn as nn
+import torch.nn.functional as F
 import numpy as np
 from torch.utils.data import DataLoader, Subset
+from torch import optim
 
 
 def train(net, dataset, config, device='cpu'):
@@ -9,6 +12,7 @@ def train(net, dataset, config, device='cpu'):
     train_ratio = config.train_data_ratio
     batch_size = config.batch_size
     num_workers = config.num_workers
+    learning_rate = config.learning_rate
 
     # Split dataset into train and validation subsets
     train_samples = int(len(dataset) * train_ratio)
@@ -26,12 +30,12 @@ def train(net, dataset, config, device='cpu'):
     val_loader = DataLoader(val_dataset, shuffle=False, drop_last=True, **loader_args)
 
     # TODO: Check this
-    # # 4. Set up the optimizer, the loss, the learning rate scheduler and the loss scaling for AMP
-    # optimizer = optim.RMSprop(net.parameters(), lr=learning_rate, weight_decay=1e-8, momentum=0.9)
-    # scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'max', patience=2)  # goal: maximize Dice score
+    # Set up the optimizer, the loss, the learning rate scheduler and the loss scaling for AMP
+    optimizer = optim.RMSprop(net.parameters(), lr=learning_rate, weight_decay=1e-8, momentum=0.9)
+    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'max', patience=2)  # goal: maximize Dice score
     # grad_scaler = torch.cuda.amp.GradScaler(enabled=amp)
-    # criterion = nn.CrossEntropyLoss()
-    # global_step = 0
+    criterion = nn.CrossEntropyLoss()
+    global_step = 0
 
     for epoch in range(epochs):
         net.train()
@@ -44,7 +48,7 @@ def train(net, dataset, config, device='cpu'):
             images = images.to(device=device, dtype=torch.float32)
             true_masks = true_masks.to(device=device, dtype=torch.long)
             # Forward pass
-            masks_pred = net(images)
+            pred_masks = net(images)
             # TODO: Check this
             loss = 0
             print("OK")

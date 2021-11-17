@@ -49,7 +49,7 @@ class BaseDataset(Dataset):
         img_file = glob.glob(self.images_dir + name + '.png')
 
         gt_mask = self.load(gt_mask_file[0])
-        img = self.load(img_file[0])
+        img = np.transpose(self.load(img_file[0]), (2, 0, 1))
 
         # img = self.preprocess(img, self.scale, is_mask=False)
         # gt_mask = self.preprocess(gt_mask, self.scale, is_mask=True)

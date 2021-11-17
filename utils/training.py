@@ -25,7 +25,7 @@ def train(net, dataset, config, device='cpu'):
     train_loader = DataLoader(train_dataset, shuffle=True, **loader_args)
     val_loader = DataLoader(val_dataset, shuffle=False, drop_last=True, **loader_args)
 
-    # TODO: Chech this
+    # TODO: Check this
     # # 4. Set up the optimizer, the loss, the learning rate scheduler and the loss scaling for AMP
     # optimizer = optim.RMSprop(net.parameters(), lr=learning_rate, weight_decay=1e-8, momentum=0.9)
     # scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'max', patience=2)  # goal: maximize Dice score
@@ -45,4 +45,6 @@ def train(net, dataset, config, device='cpu'):
             true_masks = true_masks.to(device=device, dtype=torch.long)
             # Forward pass
             masks_pred = net(images)
+            # TODO: Check this
+            loss = 0
             print("OK")

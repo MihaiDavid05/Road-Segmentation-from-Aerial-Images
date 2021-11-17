@@ -40,10 +40,3 @@ if __name__ == '__main__':
 
     # Train network
     train(net, dataset, config, device=device)
-
-
-
-
-
-
-

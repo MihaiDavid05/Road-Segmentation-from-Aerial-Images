@@ -1,4 +1,4 @@
-from utils.unet_modules import *
+from utils.network_modules import *
 
 
 class UNet(nn.Module):

@@ -4,10 +4,19 @@ import argparse
 import logging
 from utils.config import read_config
 from utils.builders import *
-from utils.training import train
+from utils.trainval import train
+from torch.utils.tensorboard import SummaryWriter
+
+SEED = 45
+torch.manual_seed(SEED)
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = False
 
 
 def get_args():
+    """
+    Parse command line arguments.
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument('config_filename', type=str, help='Configuration filename that you want to use during the run.')
     parser.add_argument('--test', action='store_true', help='Also test and create submission file.')
@@ -20,12 +29,18 @@ if __name__ == '__main__':
     args = get_args()
     config_path = 'configs/' + args.config_filename + '.yaml'
     config = read_config(config_path)
+    config.name = args.config_filename
 
     # Set file for logging
-    log_filename = args.config_filename + '.log'
-    os.remove(log_filename)
-    logging.basicConfig(filename=args.config_filename + '.log', level=logging.INFO, format='%(levelname)s: %(message)s')
-    logging.info(f'Configuration file used is {args.config_filename}\n')
+    log_filename = config.name + '.log'
+    log_dir = config.log_dir_path + config.name
+    if not os.path.exists(log_dir):
+        os.mkdir(log_dir)
+    log_filename = log_dir + '/log.log'
+    if os.path.exists(log_filename):
+        os.remove(log_filename)
+    logging.basicConfig(filename=log_filename, level=logging.INFO, format='%(levelname)s: %(message)s')
+    logging.info(f'Configuration file used is <{config.name}>\n')
 
     # Check for cuda availability
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -39,4 +54,5 @@ if __name__ == '__main__':
     dataset = build_dataset(config)
 
     # Train network
-    train(net, dataset, config, device=device)
+    writer = SummaryWriter(log_dir=log_dir)
+    train(net, dataset, config, writer,  device=device)

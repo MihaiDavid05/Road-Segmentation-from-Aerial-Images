@@ -17,9 +17,12 @@ class DotConfig:
 
 def read_config(config_file_path):
     """
-    Read config file.
-    :param config_file_path: File path to the config.
-    :return: Config file as a dict.
+    Read configuration file.
+    Args:
+        config_file_path: Path to configuration file.
+
+    Returns: Configuration parameters as dictionary.
+
     """
     with open(config_file_path, 'r') as file:
         config = yaml.load(file, Loader=yaml.FullLoader)

@@ -5,7 +5,7 @@ name: ''
 dataset: 'basic'
 
 # GT threshold
-gt_thresh: 0.5
+gt_thresh: 0.2
 
 # Model parameters
 model: 'unet'

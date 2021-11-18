@@ -1,5 +1,5 @@
 from utils.models import *
-from utils.data_loading import BaseDataset
+from utils.datasets import BaseDataset
 
 
 def build_network(config):
@@ -20,9 +20,10 @@ def build_dataset(config):
     train_dir = config.train_data
     gt_dir = config.gt_data
     scale = config.downscale_factor
+    gt_thresh = config.gt_thresh
 
     if config.dataset == 'basic':
-        dataset = BaseDataset(train_dir, gt_dir, scale)
+        dataset = BaseDataset(train_dir, gt_dir, gt_thresh, scale)
     else:
         raise KeyError("Dataset specified not implemented")
     return dataset

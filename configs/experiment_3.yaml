@@ -5,7 +5,7 @@ name: ''
 dataset: 'basic'
 
 # GT threshold
-gt_thresh: 0.5
+gt_thresh: 0.2
 
 # Model parameters
 model: 'unet'
@@ -14,7 +14,7 @@ channels: 3
 classes: 2
 
 # Training parameters
-epochs: 10
+epochs: 20
 batch_size: 2
 num_workers: 4
 learning_rate: 0.0001

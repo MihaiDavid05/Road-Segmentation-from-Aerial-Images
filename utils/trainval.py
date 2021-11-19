@@ -15,6 +15,9 @@ from utils.mask_to_submission import masks_to_submission
 
 SEED = 45
 
+LOSSES = {"cross_entropy_dice": CrossEntropyDiceLoss,
+          'mse': MeanSquaredErrorLoss}
+
 
 def train(net, dataset, config, writer, device='cpu'):
     """
@@ -69,17 +72,23 @@ def train(net, dataset, config, writer, device='cpu'):
         for batch in train_loader:
             # Get image and groundtruth mask
             images = batch['image']
-            true_masks = batch['mask']
+            binary_mask = batch['mask']
+            raw_mask = batch['raw_mask']
             # Move tensors to specific device
             images = images.to(device=device, dtype=torch.float32)
-            true_masks = true_masks.to(device=device, dtype=torch.long)
+            binary_mask = binary_mask.to(device=device, dtype=torch.long)
+            raw_mask = raw_mask.to(device=device, dtype=torch.float32)
             # Forward pass
             optimizer.zero_grad()
             pred_masks = net(images)
             # Compute loss
-            loss = criterion(pred_masks, true_masks)
-            loss += dice_loss(F.softmax(pred_masks, dim=1).float(), F.one_hot(true_masks, net.n_classes).
-                              permute(0, 3, 1, 2).float(), multiclass=True)
+            loss = criterion(pred_masks, binary_mask) + dice_loss(F.softmax(pred_masks, dim=1).float(),
+                                                                  F.one_hot(binary_mask, net.n_classes).permute(0, 3, 1, 2).float(),
+                                                                  multiclass=True)
+            # TODO: Test this and check dice coeff in evaluate and look at Unet++
+            # loss_type = LOSSES[config.loss_type]
+            # loss = loss_type(net, pred_masks, binary_mask, multiclass=True).compute()
+
             # Write summaries to TensorBoard
             writer.add_scalar("Loss/train", loss, global_step)
             writer.add_scalar("Lr", optimizer.param_groups[0]['lr'], global_step)
@@ -90,7 +99,7 @@ def train(net, dataset, config, writer, device='cpu'):
             global_step += 1
             epoch_loss += loss.item()
             # Write infos to log files
-            logging.info(f'Epoch: {epoch} -> global_step: {global_step} -> train_loss: {loss.item()}')
+            logging.info(f'Epoch: {epoch + 1} -> global_step: {global_step} -> train_loss: {loss.item()}')
 
         # Evaluate model after each epoch
         logging.info(f'Validation started !')
@@ -133,14 +142,14 @@ def evaluate(config, net, dataloader, writer, epoch, device='cpu'):
     for i, batch in tqdm(enumerate(dataloader)):
         # Get image and GT
         image = batch['image']
-        mask_true = batch['mask']
+        binary_mask = batch['mask']
         raw_mask = batch['raw_mask']
         # Log GT
-        writer.add_image("GT_masks", torch.unsqueeze(mask_true[0], dim=0), i)
+        writer.add_image("GT_masks", torch.unsqueeze(binary_mask[0], dim=0), i)
         # Move tensors to specific device
         image = image.to(device=device, dtype=torch.float32)
-        mask_true = mask_true.to(device=device, dtype=torch.long)
-        mask_true = F.one_hot(mask_true, net.n_classes).permute(0, 3, 1, 2).float()
+        binary_mask = binary_mask.to(device=device, dtype=torch.long)
+        binary_mask = F.one_hot(binary_mask, net.n_classes).permute(0, 3, 1, 2).float()
         raw_mask = raw_mask.to(device=device, dtype=torch.float32)
 
         with torch.no_grad():
@@ -149,7 +158,7 @@ def evaluate(config, net, dataloader, writer, epoch, device='cpu'):
             if net.n_classes == 1:
                 pred_masks = (F.sigmoid(pred_masks) > 0.5).float()
                 # Compute dice score
-                dice_score += dice_coeff(pred_masks, mask_true, reduce_batch_first=False)
+                dice_score += dice_coeff(pred_masks, binary_mask, reduce_batch_first=False)
             else:
                 # Log prediction
                 foreground_proba_pred = torch.softmax(pred_masks, dim=1)[0][1]
@@ -159,7 +168,7 @@ def evaluate(config, net, dataloader, writer, epoch, device='cpu'):
                 # Compute one hot vectors
                 pred_masks = F.one_hot(pred_masks.argmax(dim=1), net.n_classes).permute(0, 3, 1, 2).float()
                 # Compute dice score only for foreground
-                dice_score += multiclass_dice_coeff(pred_masks[:, 1:, ...], mask_true[:, 1:, ...],
+                dice_score += multiclass_dice_coeff(pred_masks[:, 1:, ...], binary_mask[:, 1:, ...],
                                                     reduce_batch_first=False)
             f1_submission += submission_format_metric(foreground_proba_pred, raw_mask,
                                                       fore_thresh=config.foreground_thresh)

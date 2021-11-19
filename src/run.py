@@ -19,7 +19,6 @@ def get_args():
     """
     parser = argparse.ArgumentParser()
     parser.add_argument('config_filename', type=str, help='Configuration filename that you want to use during the run.')
-    parser.add_argument('--test', action='store_true', help='Also test and create submission file.')
 
     return parser.parse_args()
 

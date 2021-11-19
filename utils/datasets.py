@@ -54,6 +54,7 @@ class BaseDataset(Dataset):
 
         # Read the image and mask
         gt_mask = mpimg.imread(gt_mask_file[0])
+        raw_mask = gt_mask.copy()
         img = mpimg.imread(img_file[0])
 
         # Preprocess both image and mask
@@ -63,5 +64,6 @@ class BaseDataset(Dataset):
         # TODO: Here .contiguous() is used
         return {
             'image': torch.as_tensor(img.copy()).float().contiguous(),
-            'mask': torch.as_tensor(gt_mask.copy()).long().contiguous()
+            'mask': torch.as_tensor(gt_mask.copy()).long().contiguous(),
+            'raw_mask': torch.as_tensor(raw_mask.copy()).float().contiguous(),
         }

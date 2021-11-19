@@ -8,6 +8,9 @@ import numpy as np
 from torch import optim
 from torch.utils.data import DataLoader, Subset
 from utils.loss import *
+from utils.helpers import img_crop, value_to_class, get_f1, mask_to_image, plot_img_and_mask
+from torchvision import transforms
+import matplotlib.image as mpimg
 
 SEED = 45
 
@@ -90,12 +93,14 @@ def train(net, dataset, config, writer, device='cpu'):
 
         # Evaluate model after each epoch
         logging.info(f'Validation started !')
-        val_dice_score = evaluate(net, val_loader, writer, epoch, device)
+        val_dice_score, f1_submission = evaluate(net, val_loader, writer, epoch, device)
         # Recompute learning rate
         scheduler.step(val_dice_score)
         # Log information to logger and TensorBoard
         logging.info('Validation Dice score is: {}'.format(val_dice_score))
+        logging.info('Submission score is: {}'.format(f1_submission))
         writer.add_scalar("Dice_Score/val", val_dice_score, global_step)
+        writer.add_scalar("Submission_Score/val", f1_submission, global_step)
         # Save models
         if save_model_interval > 0 and (epoch + 1) % save_model_interval == 0:
             checkpoint_dir = checkpoints_path + experiment_name
@@ -121,41 +126,118 @@ def evaluate(net, dataloader, writer, epoch, device='cpu'):
     net.eval()
     num_val_batches = len(dataloader)
     dice_score = 0
-    logged_gt = False
+    f1_submission = 0
 
     for i, batch in tqdm(enumerate(dataloader)):
         # Get image and GT
         image = batch['image']
         mask_true = batch['mask']
+        raw_mask = batch['raw_mask']
         # Log GT
-        if not logged_gt:
-            writer.add_image("GT_masks", torch.unsqueeze(mask_true[0], dim=0), i)
-            logged_gt = True
+        writer.add_image("GT_masks", torch.unsqueeze(mask_true[0], dim=0), i)
         # Move tensors to specific device
         image = image.to(device=device, dtype=torch.float32)
         mask_true = mask_true.to(device=device, dtype=torch.long)
         mask_true = F.one_hot(mask_true, net.n_classes).permute(0, 3, 1, 2).float()
+        raw_mask = raw_mask.to(device=device, dtype=torch.float32)
 
         with torch.no_grad():
             # Forward pass
             pred_masks = net(image)
-            # Convert predictions to one_hot vectors
             if net.n_classes == 1:
                 pred_masks = (F.sigmoid(pred_masks) > 0.5).float()
-                # compute the Dice score
+                # Compute dice score
                 dice_score += dice_coeff(pred_masks, mask_true, reduce_batch_first=False)
             else:
-                pred_masks = F.one_hot(pred_masks.argmax(dim=1), net.n_classes).permute(0, 3, 1, 2).float()
-                # compute the Dice score, ignoring background
-                # TODO: Check this ignoring background thing !
                 # Log prediction
+                foreground_proba_pred = torch.softmax(pred_masks, dim=1)[0][1]
                 writer.add_image("Pred_masks_{}".format(epoch), torch.unsqueeze(torch.softmax(pred_masks, dim=1).
                                                                                 argmax(dim=1)[0],
                                                                                 dim=0).float().detach().cpu(), i)
+                # Compute one hot vectors
+                pred_masks = F.one_hot(pred_masks.argmax(dim=1), net.n_classes).permute(0, 3, 1, 2).float()
+                # Compute dice score only for foreground
                 dice_score += multiclass_dice_coeff(pred_masks[:, 1:, ...], mask_true[:, 1:, ...],
                                                     reduce_batch_first=False)
-            # TODO: Implement validation score as in submission
+            f1_submission += submission_format_metric(foreground_proba_pred, raw_mask)
 
     net.train()
 
-    return dice_score / num_val_batches
+    return dice_score / num_val_batches, f1_submission / num_val_batches
+
+
+def submission_format_metric(pred_mask, gt_mask):
+    gt_mask = gt_mask.squeeze().detach().cpu().numpy()
+    gt_patches = img_crop(gt_mask, 16, 16)
+    gt_patches = np.asarray(gt_patches)
+    labels = np.asarray(
+        [value_to_class(np.mean(gt_patches[i]), foreground_thresh=0.25) for i in range(gt_patches.shape[0])])
+
+    pred_mask = pred_mask.detach().cpu().numpy()
+    pred_patches = img_crop(pred_mask, 16, 16)
+    pred_patches = np.asarray(pred_patches)
+    preds = np.asarray(
+        [value_to_class(np.mean(pred_patches[i]), foreground_thresh=0.25) for i in range(pred_patches.shape[0])])
+
+    f1 = get_f1(preds, labels)
+
+    return f1
+
+
+def predict_image(net,
+                  full_img,
+                  dataset,
+                  device,
+                  scale_factor=1,
+                  out_threshold=0.5):
+    net.eval()
+    img = torch.from_numpy(dataset.preprocess(full_img, scale_factor, is_mask=False))
+    img = img.unsqueeze(0)
+    img = img.to(device=device, dtype=torch.float32)
+
+    with torch.no_grad():
+        output = net(img)
+
+        if net.n_classes > 1:
+            probs = F.softmax(output, dim=1)[0]
+        else:
+            probs = torch.sigmoid(output)[0]
+
+        tf = transforms.Compose([
+            transforms.ToPILImage(),
+            transforms.Resize((full_img.size[1], full_img.size[0])),
+            transforms.ToTensor()
+        ])
+
+        full_mask = tf(probs.cpu()).squeeze()
+
+    if net.n_classes == 1:
+        return (full_mask > out_threshold).numpy()
+    else:
+        return F.one_hot(full_mask.argmax(dim=0), net.n_classes).permute(2, 0, 1).numpy()
+
+
+def predict(args, config, net, dataset, device):
+    test_folders = os.listdir(config.test_data)
+    for i, folder in enumerate(test_folders):
+        filename = os.listdir(config.test_data + folder)[0]
+        logging.info(f'\nPredicting image {filename}')
+        img = mpimg.imread(config.test_data + folder + '/' + filename)
+        # Predict a mask
+        # TODO: Check below function
+        mask = predict_image(net=net,
+                             full_img=img,
+                             dataset=dataset,
+                             scale_factor=1,
+                             out_threshold=0.5,
+                             device=device)
+
+        # if not args.no_save:
+        #     out_filename = out_files[i]
+        #     result = mask_to_image(mask)
+        #     result.save(out_filename)
+        #     logging.info(f'Mask saved to {out_filename}')
+        #
+        # if args.viz:
+        #     logging.info(f'Visualizing results for image {filename}, close to continue...')
+        #     plot_img_and_mask(img, mask)

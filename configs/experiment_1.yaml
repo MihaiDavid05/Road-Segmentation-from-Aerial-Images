@@ -9,7 +9,7 @@ gt_thresh: 0.5
 
 # Model parameters
 model: 'unet'
-downscale_factor: 0.5
+resize_test: True
 channels: 3
 classes: 2
 

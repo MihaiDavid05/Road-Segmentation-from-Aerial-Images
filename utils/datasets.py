@@ -9,10 +9,10 @@ import matplotlib.image as mpimg
 
 
 class BaseDataset(Dataset):
-    def __init__(self, images_dir, gt_dir, gt_thresh, scale):
+    def __init__(self, images_dir, gt_dir, gt_thresh, resize_test):
         self.images_dir = images_dir
         self.gt_dir = gt_dir
-        self.scale = scale
+        self.resize_test = resize_test
         self.gt_thresh = gt_thresh
         self.ids = [img_name.split('.')[0] for img_name in os.listdir(images_dir)]
         logging.info(f'Dataset created with {len(self.ids)} samples')
@@ -21,27 +21,27 @@ class BaseDataset(Dataset):
         return len(self.ids)
 
     @classmethod
-    def preprocess(cls, img, scale, gt_thresh=None, is_mask=False):
-
-        # TODO: Check this scaling for test images !
-        # w, h = img.size
-        # newW, newH = int(scale * w), int(scale * h)
-        # assert newW > 0 and newH > 0, 'Scale is too small, resized images would have no pixel'
-        # pil_img = img.resize((newW, newH), resample=Image.NEAREST if is_mask else Image.BICUBIC)
-        # img_ndarray = np.asarray(pil_img)
+    def preprocess(cls, img, resize_test=False, gt_thresh=0.5, is_mask=False, is_test=False):
         img_ndarray = img
+
+        if is_test:
+            if resize_test:
+                pil_img = img.resize((400, 400), resample=Image.NEAREST if is_mask else Image.BICUBIC)
+                img_ndarray = np.asarray(pil_img)
+                img_ndarray = img_ndarray / 255
 
         if img_ndarray.ndim == 2 and not is_mask:
             img_ndarray = img_ndarray[np.newaxis, ...]
         elif not is_mask:
             img_ndarray = img_ndarray.transpose((2, 0, 1))
 
-        if not is_mask:
-            rimg = img_ndarray - np.min(img_ndarray)
-            img_ndarray = (rimg / np.max(rimg) * 255).round().astype(np.uint8)
-            img_ndarray = img_ndarray / 255
-        else:
-            img_ndarray = np.where(img_ndarray > gt_thresh, 1, 0)
+        if not is_test:
+            if not is_mask:
+                rimg = img_ndarray - np.min(img_ndarray)
+                img_ndarray = (rimg / np.max(rimg) * 255).round().astype(np.uint8)
+                img_ndarray = img_ndarray / 255
+            else:
+                img_ndarray = np.where(img_ndarray > gt_thresh, 1, 0)
 
         return img_ndarray
 
@@ -58,8 +58,8 @@ class BaseDataset(Dataset):
         img = mpimg.imread(img_file[0])
 
         # Preprocess both image and mask
-        img = self.preprocess(img, self.scale, is_mask=False)
-        gt_mask = self.preprocess(gt_mask, self.scale, self.gt_thresh, is_mask=True)
+        img = self.preprocess(img, self.resize_test, is_mask=False)
+        gt_mask = self.preprocess(gt_mask, self.resize_test, self.gt_thresh, is_mask=True)
 
         # TODO: Here .contiguous() is used
         return {

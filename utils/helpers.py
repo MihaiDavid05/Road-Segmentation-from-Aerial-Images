@@ -28,6 +28,24 @@ def value_to_class(v, foreground_thresh):
         return 0
 
 
+def submission_format_metric(pred_mask, gt_mask, fore_thresh):
+    gt_mask = gt_mask.squeeze().detach().cpu().numpy()
+    gt_patches = img_crop(gt_mask, 16, 16)
+    gt_patches = np.asarray(gt_patches)
+    labels = np.asarray(
+        [value_to_class(np.mean(gt_patches[i]), foreground_thresh=fore_thresh) for i in range(gt_patches.shape[0])])
+
+    pred_mask = pred_mask.detach().cpu().numpy()
+    pred_patches = img_crop(pred_mask, 16, 16)
+    pred_patches = np.asarray(pred_patches)
+    preds = np.asarray(
+        [value_to_class(np.mean(pred_patches[i]), foreground_thresh=fore_thresh) for i in range(pred_patches.shape[0])])
+
+    f1 = get_f1(preds, labels)
+
+    return f1
+
+
 def get_precision_recall_accuracy(preds, labels):
     """
     Compute precision, recall and accuracy.
@@ -81,4 +99,6 @@ def mask_to_image(mask):
 def plot_img_and_mask(image, mask):
     # TODO: Check this function
     pass
+
+
 

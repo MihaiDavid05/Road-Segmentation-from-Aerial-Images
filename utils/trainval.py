@@ -1,5 +1,6 @@
 import torch
 import os
+import PIL
 from tqdm import tqdm
 import logging
 import torch.nn as nn
@@ -8,7 +9,7 @@ import numpy as np
 from torch import optim
 from torch.utils.data import DataLoader, Subset
 from utils.loss import *
-from utils.helpers import img_crop, value_to_class, get_f1, mask_to_image, plot_img_and_mask
+from utils.helpers import submission_format_metric
 from torchvision import transforms
 import matplotlib.image as mpimg
 
@@ -159,39 +160,22 @@ def evaluate(net, dataloader, writer, epoch, device='cpu'):
                 # Compute dice score only for foreground
                 dice_score += multiclass_dice_coeff(pred_masks[:, 1:, ...], mask_true[:, 1:, ...],
                                                     reduce_batch_first=False)
-            f1_submission += submission_format_metric(foreground_proba_pred, raw_mask)
+            # TODO: Make threshold configurable
+            f1_submission += submission_format_metric(foreground_proba_pred, raw_mask, fore_thresh=0.25)
 
     net.train()
 
     return dice_score / num_val_batches, f1_submission / num_val_batches
 
 
-def submission_format_metric(pred_mask, gt_mask):
-    gt_mask = gt_mask.squeeze().detach().cpu().numpy()
-    gt_patches = img_crop(gt_mask, 16, 16)
-    gt_patches = np.asarray(gt_patches)
-    labels = np.asarray(
-        [value_to_class(np.mean(gt_patches[i]), foreground_thresh=0.25) for i in range(gt_patches.shape[0])])
-
-    pred_mask = pred_mask.detach().cpu().numpy()
-    pred_patches = img_crop(pred_mask, 16, 16)
-    pred_patches = np.asarray(pred_patches)
-    preds = np.asarray(
-        [value_to_class(np.mean(pred_patches[i]), foreground_thresh=0.25) for i in range(pred_patches.shape[0])])
-
-    f1 = get_f1(preds, labels)
-
-    return f1
-
-
 def predict_image(net,
                   full_img,
                   dataset,
                   device,
-                  scale_factor=1,
+                  resize_test=True,
                   out_threshold=0.5):
     net.eval()
-    img = torch.from_numpy(dataset.preprocess(full_img, scale_factor, is_mask=False))
+    img = torch.from_numpy(dataset.preprocess(full_img, is_mask=False, is_test=True, resize_test=resize_test))
     img = img.unsqueeze(0)
     img = img.to(device=device, dtype=torch.float32)
 
@@ -222,15 +206,15 @@ def predict(args, config, net, dataset, device):
     for i, folder in enumerate(test_folders):
         filename = os.listdir(config.test_data + folder)[0]
         logging.info(f'\nPredicting image {filename}')
-        img = mpimg.imread(config.test_data + folder + '/' + filename)
+        img = PIL.Image.open(config.test_data + folder + '/' + filename)
         # Predict a mask
-        # TODO: Check below function
         mask = predict_image(net=net,
                              full_img=img,
                              dataset=dataset,
-                             scale_factor=1,
+                             resize_test=config.resize_test,
                              out_threshold=0.5,
                              device=device)
+        # TODO: Check next thing for mask and if one_hot needed
 
         # if not args.no_save:
         #     out_filename = out_files[i]

@@ -31,9 +31,9 @@ def reconstruct_from_labels(image_id):
             continue
 
         tokens = line.split(',')
-        id = tokens[0]
+        idd = tokens[0]
         prediction = int(tokens[1])
-        tokens = id.split('_')
+        tokens = idd.split('_')
         i = int(tokens[1])
         j = int(tokens[2])
 
@@ -49,7 +49,3 @@ def reconstruct_from_labels(image_id):
     Image.fromarray(im).save('prediction_' + '%.3d' % image_id + '.png')
 
     return im
-
-
-for i in range(1, 5):
-    reconstruct_from_labels(i)

@@ -28,18 +28,20 @@ def value_to_class(v, foreground_thresh):
         return 0
 
 
+def get_binary_patch_mask(mask, fore_thresh):
+    patches = img_crop(mask, 16, 16)
+    patches = np.asarray(patches)
+    labels = np.asarray(
+        [value_to_class(np.mean(patches[i]), foreground_thresh=fore_thresh) for i in range(patches.shape[0])])
+    return labels
+
+
 def submission_format_metric(pred_mask, gt_mask, fore_thresh):
     gt_mask = gt_mask.squeeze().detach().cpu().numpy()
-    gt_patches = img_crop(gt_mask, 16, 16)
-    gt_patches = np.asarray(gt_patches)
-    labels = np.asarray(
-        [value_to_class(np.mean(gt_patches[i]), foreground_thresh=fore_thresh) for i in range(gt_patches.shape[0])])
+    labels = get_binary_patch_mask(gt_mask, fore_thresh)
 
     pred_mask = pred_mask.detach().cpu().numpy()
-    pred_patches = img_crop(pred_mask, 16, 16)
-    pred_patches = np.asarray(pred_patches)
-    preds = np.asarray(
-        [value_to_class(np.mean(pred_patches[i]), foreground_thresh=fore_thresh) for i in range(pred_patches.shape[0])])
+    preds = get_binary_patch_mask(pred_mask, fore_thresh)
 
     f1 = get_f1(preds, labels)
 
@@ -94,11 +96,3 @@ def mask_to_image(mask):
         return Image.fromarray((mask * 255).astype(np.uint8))
     elif mask.ndim == 3:
         return Image.fromarray((np.argmax(mask, axis=0) * 255 / mask.shape[0]).astype(np.uint8))
-
-
-def plot_img_and_mask(image, mask):
-    # TODO: Check this function
-    pass
-
-
-

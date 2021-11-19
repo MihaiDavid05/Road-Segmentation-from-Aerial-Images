@@ -4,8 +4,9 @@ name: ''
 # Dataset type
 dataset: 'basic'
 
-# GT threshold
+# Proccessing thresholds
 gt_thresh: 0.1
+foreground_thresh: 0.25
 
 # Model parameters
 model: 'unet'
@@ -37,3 +38,6 @@ checkpoints_path: "checkpoints/"
 
 # Logs folder
 log_dir_path: "logs/"
+
+# Visualization folder
+viz_path: "visualizations/"

@@ -9,9 +9,9 @@ import numpy as np
 from torch import optim
 from torch.utils.data import DataLoader, Subset
 from utils.loss import *
-from utils.helpers import submission_format_metric
+from utils.helpers import submission_format_metric, mask_to_image
 from torchvision import transforms
-import matplotlib.image as mpimg
+from utils.mask_to_submission import masks_to_submission
 
 SEED = 45
 
@@ -94,7 +94,7 @@ def train(net, dataset, config, writer, device='cpu'):
 
         # Evaluate model after each epoch
         logging.info(f'Validation started !')
-        val_dice_score, f1_submission = evaluate(net, val_loader, writer, epoch, device)
+        val_dice_score, f1_submission = evaluate(config, net, val_loader, writer, epoch, device)
         # Recompute learning rate
         scheduler.step(val_dice_score)
         # Log information to logger and TensorBoard
@@ -111,10 +111,11 @@ def train(net, dataset, config, writer, device='cpu'):
             logging.info(f'Checkpoint {epoch + 1} saved!')
 
 
-def evaluate(net, dataloader, writer, epoch, device='cpu'):
+def evaluate(config, net, dataloader, writer, epoch, device='cpu'):
     """
     Run evaluation on the entire dataset.
     Args:
+        config: Configuration dictionary.
         net: Neural network architecture.
         dataloader: Validation dataloader.
         writer: Summary writer object for TensorBoard logging.
@@ -160,8 +161,8 @@ def evaluate(net, dataloader, writer, epoch, device='cpu'):
                 # Compute dice score only for foreground
                 dice_score += multiclass_dice_coeff(pred_masks[:, 1:, ...], mask_true[:, 1:, ...],
                                                     reduce_batch_first=False)
-            # TODO: Make threshold configurable
-            f1_submission += submission_format_metric(foreground_proba_pred, raw_mask, fore_thresh=0.25)
+            f1_submission += submission_format_metric(foreground_proba_pred, raw_mask,
+                                                      fore_thresh=config.foreground_thresh)
 
     net.train()
 
@@ -193,35 +194,44 @@ def predict_image(net,
             transforms.ToTensor()
         ])
 
-        full_mask = tf(probs.cpu()).squeeze()
+        proba_mask = tf(probs.cpu()).squeeze()
 
-    if net.n_classes == 1:
-        return (full_mask > out_threshold).numpy()
-    else:
-        return F.one_hot(full_mask.argmax(dim=0), net.n_classes).permute(2, 0, 1).numpy()
+        if net.n_classes == 1:
+            one_hot_mask = (proba_mask > out_threshold).numpy()
+        else:
+            one_hot_mask = F.one_hot(proba_mask.argmax(dim=0), net.n_classes).permute(2, 0, 1).numpy()
+
+    return proba_mask.numpy(), one_hot_mask
 
 
 def predict(args, config, net, dataset, device):
     test_folders = os.listdir(config.test_data)
-    for i, folder in enumerate(test_folders):
+    test_folders = sorted(test_folders, key=lambda x: int(x.split('_')[-1]))
+    viz_folder = config.viz_path + config.name
+    if not os.path.exists(viz_folder):
+        os.mkdir(viz_folder)
+    submission_path = config.output_path + "submission_" + config.name + '.csv'
+    preds = []
+    for i, folder in tqdm(enumerate(test_folders)):
         filename = os.listdir(config.test_data + folder)[0]
         logging.info(f'\nPredicting image {filename}')
         img = PIL.Image.open(config.test_data + folder + '/' + filename)
         # Predict a mask
-        mask = predict_image(net=net,
-                             full_img=img,
-                             dataset=dataset,
-                             resize_test=config.resize_test,
-                             out_threshold=0.5,
-                             device=device)
-        # TODO: Check next thing for mask and if one_hot needed
+        proba_mask, one_hot_mask = predict_image(net=net,
+                                                 full_img=img,
+                                                 dataset=dataset,
+                                                 resize_test=config.resize_test,
+                                                 out_threshold=0.5,
+                                                 device=device)
+        foreground_mask = proba_mask[1]
+        preds.append((filename, foreground_mask))
 
-        # if not args.no_save:
-        #     out_filename = out_files[i]
-        #     result = mask_to_image(mask)
-        #     result.save(out_filename)
-        #     logging.info(f'Mask saved to {out_filename}')
-        #
-        # if args.viz:
-        #     logging.info(f'Visualizing results for image {filename}, close to continue...')
-        #     plot_img_and_mask(img, mask)
+        if args.save:
+            out_filename = test_folders[i] + '.png'
+            output_path = viz_folder + '/' + out_filename
+            result = mask_to_image(one_hot_mask)
+            result.save(output_path)
+            logging.info(f'Mask saved to {out_filename}')
+
+    # Convert to submission format and save to csv
+    masks_to_submission(submission_path, config.foreground_thresh, preds)

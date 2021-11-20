@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-# TODO: Check this losses classes
 
 
 class CrossEntropyDiceLoss:
@@ -36,14 +35,15 @@ class CrossEntropyDiceLoss:
                 dice += dice_coeff(inp[i, ...], target[i, ...])
             return dice / inp.shape[0]
 
-    def multiclass_dice_coeff(self, reduce_batch_first=False, epsilon=1e-6):
+    @classmethod
+    def multiclass_dice_coeff(cls, inp, target, reduce_batch_first=False, epsilon=1e-6):
         # Average of Dice coefficient for all classes
-        assert self.inp.size() == self.target.size()
+        assert inp.size() == target.size()
         dice = 0
-        for channel in range(self.inp.shape[1]):
-            dice += self.dice_coeff(self.inp[:, channel, ...], self.target[:, channel, ...], reduce_batch_first, epsilon)
+        for channel in range(inp.shape[1]):
+            dice += dice_coeff(inp[:, channel, ...], target[:, channel, ...], reduce_batch_first, epsilon)
 
-        return dice / self.inp.shape[1]
+        return dice / inp.shape[1]
 
     def dice_loss(self):
         self.inp = F.softmax(self.inp, dim=1).float()
@@ -55,11 +55,14 @@ class CrossEntropyDiceLoss:
 
 
 class MeanSquaredErrorLoss:
-    def __init__(self):
-        pass
+    def __init__(self, net, inp, target):
+        self.net = net
+        self.inp = inp
+        self.target = target
 
     def compute(self):
-        pass
+        criterion = nn.MSELoss()
+        return criterion(self.inp, self.target)
 
 
 def dice_coeff(inp, target, reduce_batch_first=False, epsilon=1e-6):

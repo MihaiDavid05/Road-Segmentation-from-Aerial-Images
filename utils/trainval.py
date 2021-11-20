@@ -85,9 +85,10 @@ def train(net, dataset, config, writer, device='cpu'):
             loss = criterion(pred_masks, binary_mask) + dice_loss(F.softmax(pred_masks, dim=1).float(),
                                                                   F.one_hot(binary_mask, net.n_classes).permute(0, 3, 1, 2).float(),
                                                                   multiclass=True)
-            # TODO: Test this and check dice coeff in evaluate and look at Unet++
-            # loss_type = LOSSES[config.loss_type]
-            # loss = loss_type(net, pred_masks, binary_mask, multiclass=True).compute()
+            # if config.loss_type == 'cross_entropy_dice':
+            #     loss = CrossEntropyDiceLoss(net, pred_masks, binary_mask, multiclass=True).compute()
+            # elif config.loss_type == 'mse':
+            #     loss = MeanSquaredErrorLoss(net, pred_masks, raw_mask).compute()
 
             # Write summaries to TensorBoard
             writer.add_scalar("Loss/train", loss, global_step)

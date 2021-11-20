@@ -5,7 +5,7 @@ name: ''
 dataset: 'basic'
 
 # Proccessing thresholds
-gt_thresh: 0.1
+gt_thresh: 0.2
 foreground_thresh: 0.25
 
 # Model parameters

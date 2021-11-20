@@ -17,7 +17,7 @@ classes: 2
 # Training parameters
 epochs: 10
 batch_size: 2
-num_workers: 4
+num_workers: 2
 learning_rate: 0.0001
 momentum: 0.9
 weight_decay: 0.00000001
@@ -44,4 +44,6 @@ log_dir_path: "logs/"
 viz_path: "visualizations/"
 
 
-# Comments: it seems that gt_thresh: 0.2 is a good threshold , since best results between exp1, 2, 3.
+# Comments:
+# DO NOT CHANGE THIS - USED FOR GENERATING submission_experiment_2.csv !
+# It seems that gt_thresh: 0.2 is a good threshold , since best results between experiment 1, 2 and 3.

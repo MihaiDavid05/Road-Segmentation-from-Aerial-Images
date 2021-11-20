@@ -11,7 +11,6 @@ h = 16
 w = h
 imgwidth = int(math.ceil((600.0 / w)) * w)
 imgheight = int(math.ceil((600.0 / h)) * h)
-nc = 3
 
 
 # Convert an array of binary labels to a uint8

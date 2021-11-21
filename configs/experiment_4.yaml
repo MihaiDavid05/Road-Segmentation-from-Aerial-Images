@@ -3,6 +3,7 @@ name: ''
 
 # Dataset type
 dataset: 'basic'
+augmentation_type: ''
 
 # Proccessing thresholds
 gt_thresh: 0.2
@@ -15,7 +16,7 @@ channels: 3
 classes: 2
 
 # Training parameters
-epochs: 10
+epochs: 20
 batch_size: 2
 num_workers: 2
 learning_rate: 0.0001
@@ -27,8 +28,10 @@ patience: 2
 loss_type: 'cross_entropy_dice'
 
 # Data paths
-train_data: "data/training/images/"
-gt_data: "data/training/groundtruth/"
+train_data: "data/training/images_augment_1/"
+gt_data: "data/training/groundtruth_augment_1/"
+#train_data: "data/training/images/"
+#gt_data: "data/training/groundtruth/"
 test_data: "data/test_set_images/"
 
 # Submissions folder
@@ -42,3 +45,6 @@ log_dir_path: "logs/"
 
 # Visualization folder
 viz_path: "visualizations/"
+
+
+# Comments:

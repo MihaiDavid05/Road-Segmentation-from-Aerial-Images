@@ -23,7 +23,6 @@ class BaseDataset(Dataset):
     @classmethod
     def preprocess(cls, img, resize_test=False, gt_thresh=0.5, is_mask=False, is_test=False):
         img_ndarray = img
-
         if is_test:
             if resize_test:
                 pil_img = img.resize((400, 400), resample=Image.NEAREST if is_mask else Image.BICUBIC)
@@ -42,6 +41,9 @@ class BaseDataset(Dataset):
                 img_ndarray = img_ndarray / 255
             else:
                 img_ndarray = np.where(img_ndarray > gt_thresh, 1, 0)
+
+        if is_mask and (np.all(img == 0) or np.all(img == 1)):
+            raise ValueError("Useless image!")
 
         return img_ndarray
 

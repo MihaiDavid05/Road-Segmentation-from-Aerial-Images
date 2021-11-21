@@ -2,7 +2,7 @@ import os
 import torch
 import argparse
 import logging
-from utils.config import read_config
+from utils.config import *
 from utils.builders import *
 from utils.trainval import train
 from torch.utils.tensorboard import SummaryWriter
@@ -28,6 +28,7 @@ if __name__ == '__main__':
     args = get_args()
     config_path = 'configs/' + args.config_filename + '.yaml'
     config = read_config(config_path)
+    config = DotConfig(config)
     config.name = args.config_filename
 
     # Set file for logging
@@ -55,3 +56,7 @@ if __name__ == '__main__':
     # Train network
     writer = SummaryWriter(log_dir=log_dir)
     train(net, dataset, config, writer,  device=device)
+
+    # TODO: ideas:
+    # Implement Focal Loss + Dice !!!!
+    # Look at 3D MININet architecture

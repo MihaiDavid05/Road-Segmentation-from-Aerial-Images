@@ -1,7 +1,7 @@
 import os
 import argparse
 import logging
-from utils.config import read_config
+from utils.config import *
 from utils.builders import *
 from utils.trainval import predict
 
@@ -23,6 +23,7 @@ if __name__ == '__main__':
     args = get_args()
     config_path = 'configs/' + args.config_filename + '.yaml'
     config = read_config(config_path)
+    config = DotConfig(config)
     config.name = args.config_filename
 
     # Set file for logging

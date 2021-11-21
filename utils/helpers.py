@@ -42,6 +42,12 @@ def submission_format_metric(pred_mask, gt_mask, fore_thresh):
 
     pred_mask = pred_mask.detach().cpu().numpy()
     preds = get_binary_patch_mask(pred_mask, fore_thresh)
+    print(preds)
+    print(np.all(preds == 0))
+    print(np.all(preds == 1))
+    print(labels)
+    print(np.all(labels == 0))
+    print(np.all(labels == 1))
 
     f1 = get_f1(preds, labels)
 
@@ -67,6 +73,8 @@ def get_precision_recall_accuracy(preds, labels):
     precision = tp / (tp + fp)
     recall = tp / (tp + fn)
     accuracy = (tp + tn) / (tp + fp + fn + tn)
+
+    print(tp, fp, fn)
 
     return precision, recall, accuracy
 
@@ -96,3 +104,9 @@ def mask_to_image(mask):
         return Image.fromarray((mask * 255).astype(np.uint8))
     elif mask.ndim == 3:
         return Image.fromarray((np.argmax(mask, axis=0) * 255 / mask.shape[0]).astype(np.uint8))
+
+
+def img_float_to_uint8(img):
+    rimg = img - np.min(img)
+    rimg = (rimg / np.max(rimg) * 255).round().astype(np.uint8)
+    return rimg

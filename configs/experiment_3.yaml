@@ -3,6 +3,7 @@ name: ''
 
 # Dataset type
 dataset: 'basic'
+augmentation_type: ''
 
 # Proccessing thresholds
 gt_thresh: 0.1

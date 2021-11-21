@@ -6,10 +6,10 @@ class DotConfig:
     Class for making configuration file accessible with dot.
     """
     def __init__(self, cfg):
-        self._cfg = cfg
+        self.cfg = cfg
 
     def __getattr__(self, k):
-        v = self._cfg[k]
+        v = self.cfg[k]
         if isinstance(v, dict):
             return DotConfig(v)
         return v
@@ -26,4 +26,4 @@ def read_config(config_file_path):
     """
     with open(config_file_path, 'r') as file:
         config = yaml.load(file, Loader=yaml.FullLoader)
-    return DotConfig(config)
+    return config

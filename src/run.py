@@ -44,6 +44,7 @@ if __name__ == '__main__':
         os.mkdir(log_dir)
     log_filename = log_dir + '/log.log'
     if os.path.exists(log_filename):
+        # TODO: Change this behaviour
         os.remove(log_filename)
     logging.basicConfig(filename=log_filename, level=logging.INFO, format='%(levelname)s: %(message)s')
     logging.info(f'Configuration file used is <{config.name}>\n')
@@ -57,12 +58,12 @@ if __name__ == '__main__':
     net.to(device=device)
 
     # Show network format for a 400x400x3 image input
-    # summary(net, (3, 400, 400), 1)
+    summary(net, (3, 400, 400), 1)
 
     # Build dataset according to config file
     dataset = build_dataset(config)
 
-    # Load pretrained VGG, if it is the case
+    # Load pretrained VGG13
     if config.pretrain is not None:
         net = load_pretrain_model(net, config)
 

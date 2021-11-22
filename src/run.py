@@ -6,6 +6,9 @@ from utils.config import *
 from utils.builders import *
 from utils.trainval import train
 from torch.utils.tensorboard import SummaryWriter
+from torchsummary import summary
+from utils.helpers import load_pretrain_model
+import numpy as np
 
 SEED = 45
 torch.manual_seed(SEED)
@@ -24,6 +27,9 @@ def get_args():
 
 
 if __name__ == '__main__':
+    # Set random number generator seed for numpy
+    rng = np.random.RandomState(SEED)
+
     # Get command line arguments and configuration dictionary
     args = get_args()
     config_path = 'configs/' + args.config_filename + '.yaml'
@@ -50,13 +56,26 @@ if __name__ == '__main__':
     net = build_network(config)
     net.to(device=device)
 
+    # Show network format for a 400x400x3 image input
+    # summary(net, (3, 400, 400), 1)
+
     # Build dataset according to config file
     dataset = build_dataset(config)
 
+    # Load pretrained VGG, if it is the case
+    if config.pretrain is not None:
+        net = load_pretrain_model(net, config)
+
     # Train network
     writer = SummaryWriter(log_dir=log_dir)
-    train(net, dataset, config, writer,  device=device)
+    train(net, dataset, config, writer, rng=rng, device=device)
 
     # TODO: ideas:
-    # Implement Focal Loss + Dice !!!!
     # Look at 3D MININet architecture
+    # See differences in losses CE or FocalLoss
+    # Check gt_thresh importance
+    # Check difference between resizing test image before and after network or padding training image in order to have same dimension with test
+    # Augmentations
+    # Regularization
+    # Transfer learning with VGG16
+    # Preprocess images with erosion and dilation

@@ -1,11 +1,11 @@
 import torch
 import os
-import PIL
 from tqdm import tqdm
 import logging
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
+from PIL import Image
 from torch import optim
 from torch.utils.data import DataLoader, Subset
 from utils.loss import *
@@ -13,13 +13,8 @@ from utils.helpers import submission_format_metric, mask_to_image
 from torchvision import transforms
 from utils.mask_to_submission import masks_to_submission
 
-SEED = 45
 
-LOSSES = {"cross_entropy_dice": CrossEntropyDiceLoss,
-          'mse': MeanSquaredErrorLoss}
-
-
-def train(net, dataset, config, writer, device='cpu'):
+def train(net, dataset, config, writer, rng, device='cpu'):
     """
     Train and evaluate network.
     Args:
@@ -27,6 +22,7 @@ def train(net, dataset, config, writer, device='cpu'):
         dataset: Datset.
         config: Configuration dictionary.
         writer: Summary writer object for TensorBoard logging.
+        rng: Random number generator
         device: Can be 'cpu' or 'cuda:0' - depending if you run on CPU or GPU.
 
     """
@@ -47,7 +43,6 @@ def train(net, dataset, config, writer, device='cpu'):
     train_samples = int(len(dataset) * train_ratio)
     val_samples = len(dataset) - train_samples
     lengths = [train_samples, val_samples]
-    rng = np.random.RandomState(SEED)
     indices = rng.permutation(sum(lengths)).tolist()
     train_dataset, val_dataset = [Subset(dataset, indices[offset - length:offset])
                                   for offset, length in zip(np.cumsum(lengths), lengths)]
@@ -61,9 +56,13 @@ def train(net, dataset, config, writer, device='cpu'):
     # Set up the optimizer, loss and learning rate scheduler
     optimizer = optim.RMSprop(net.parameters(), lr=learning_rate, weight_decay=weight_decay, momentum=momentum)
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'max', patience=patience)
-    criterion = nn.CrossEntropyLoss()
+    if config.loss_type == 'focal':
+        criterion = FocalLoss(gamma=config.focal_gamma, alpha=config.focal_alpha)
+    else:
+        criterion = nn.CrossEntropyLoss
 
     global_step = 0
+    max_f1 = 0
     logging.info(f'Training started !')
     for epoch in tqdm(range(epochs)):
         # Train step
@@ -73,23 +72,18 @@ def train(net, dataset, config, writer, device='cpu'):
             # Get image and groundtruth mask
             images = batch['image']
             binary_mask = batch['mask']
-            raw_mask = batch['raw_mask']
             # Move tensors to specific device
             images = images.to(device=device, dtype=torch.float32)
             binary_mask = binary_mask.to(device=device, dtype=torch.long)
-            raw_mask = raw_mask.to(device=device, dtype=torch.float32)
             # Forward pass
             optimizer.zero_grad()
             pred_masks = net(images)
             # Compute loss
-            loss = criterion(pred_masks, binary_mask) + dice_loss(F.softmax(pred_masks, dim=1).float(),
-                                                                  F.one_hot(binary_mask, net.n_classes).permute(0, 3, 1, 2).float(),
-                                                                  multiclass=True)
-            # if config.loss_type == 'cross_entropy_dice':
-            #     loss = CrossEntropyDiceLoss(net, pred_masks, binary_mask, multiclass=True).compute()
-            # elif config.loss_type == 'mse':
-            #     loss = MeanSquaredErrorLoss(net, pred_masks, raw_mask).compute()
-
+            loss = criterion(pred_masks, binary_mask)
+            # loss += dice_loss(F.softmax(pred_masks, dim=1).float()[:, 1, ...], F.one_hot(binary_mask, net.n_classes)
+            #                   .permute(0, 3, 1, 2).float()[:, 1, ...], multiclass=False)
+            loss += dice_loss(F.softmax(pred_masks, dim=1).float(), F.one_hot(binary_mask, net.n_classes).
+                              permute(0, 3, 1, 2).float(), multiclass=True)
             # Write summaries to TensorBoard
             writer.add_scalar("Loss/train", loss, global_step)
             writer.add_scalar("Lr", optimizer.param_groups[0]['lr'], global_step)
@@ -105,19 +99,28 @@ def train(net, dataset, config, writer, device='cpu'):
         # Evaluate model after each epoch
         logging.info(f'Validation started !')
         val_dice_score, f1_submission = evaluate(config, net, val_loader, writer, epoch, device)
+
         # Recompute learning rate
         scheduler.step(val_dice_score)
+
         # Log information to logger and TensorBoard
         logging.info('Validation Dice score is: {}'.format(val_dice_score))
         logging.info('Submission score is: {}'.format(f1_submission))
         writer.add_scalar("Dice_Score/val", val_dice_score, global_step)
         writer.add_scalar("Submission_Score/val", f1_submission, global_step)
+
         # Save models
-        if save_model_interval > 0 and (epoch + 1) % save_model_interval == 0:
+        # TODO: Check this best metric condition
+        # if save_model_interval > 0 and (epoch + 1) % save_model_interval == 0:
+        # if not np.isnan(f1_submission) and f1_submission > max_f1:
+        if val_dice_score > max_f1:
+            max_f1 = val_dice_score
+            print("Current maximum score is: {}".format(max_f1))
             checkpoint_dir = checkpoints_path + experiment_name
             if not os.path.exists(checkpoint_dir):
                 os.makedirs(checkpoint_dir)
-            torch.save(net.state_dict(), checkpoint_dir + '/checkpoint_epoch{}.pth'.format(epoch + 1))
+            torch.save(net.state_dict(), checkpoint_dir + '/checkpoint_best.pth')
+            # torch.save(net.state_dict(), checkpoint_dir + '/checkpoint_epoch{}.pth'.format(epoch + 1))
             logging.info(f'Checkpoint {epoch + 1} saved!')
 
 
@@ -141,11 +144,11 @@ def evaluate(config, net, dataloader, writer, epoch, device='cpu'):
     f1_submission = 0
 
     for i, batch in tqdm(enumerate(dataloader)):
-        # Get image and GT
+        # Get image and gt masks (both binary and probabilistic)
         image = batch['image']
         binary_mask = batch['mask']
         raw_mask = batch['raw_mask']
-        # Log GT
+        # Log gt
         writer.add_image("GT_masks", torch.unsqueeze(binary_mask[0], dim=0), i)
         # Move tensors to specific device
         image = image.to(device=device, dtype=torch.float32)
@@ -173,10 +176,9 @@ def evaluate(config, net, dataloader, writer, epoch, device='cpu'):
                                                     reduce_batch_first=False)
             f1_submission += submission_format_metric(foreground_proba_pred, raw_mask,
                                                       fore_thresh=config.foreground_thresh)
-
     net.train()
 
-    return dice_score / num_val_batches, f1_submission / num_val_batches
+    return dice_score / num_val_batches, np.nan if np.isnan(f1_submission) else f1_submission / num_val_batches
 
 
 def predict_image(net,
@@ -225,7 +227,7 @@ def predict(args, config, net, dataset, device):
     for i, folder in tqdm(enumerate(test_folders)):
         filename = os.listdir(config.test_data + folder)[0]
         logging.info(f'\nPredicting image {filename}')
-        img = PIL.Image.open(config.test_data + folder + '/' + filename)
+        img = Image.open(config.test_data + folder + '/' + filename)
         # Predict a mask
         proba_mask, one_hot_mask = predict_image(net=net,
                                                  full_img=img,
@@ -236,6 +238,7 @@ def predict(args, config, net, dataset, device):
         foreground_mask = proba_mask[1]
         preds.append((filename, foreground_mask))
 
+        # Save prediction
         if args.save:
             out_filename = test_folders[i] + '.png'
             output_path = viz_folder + '/' + out_filename

@@ -5,6 +5,11 @@ from utils.config import *
 from utils.builders import *
 from utils.trainval import predict
 
+SEED = 45
+torch.manual_seed(SEED)
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = False
+
 
 def get_args():
     """

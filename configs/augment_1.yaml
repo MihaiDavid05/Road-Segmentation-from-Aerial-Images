@@ -10,11 +10,11 @@ augmentations:
   pixel_transform:
     contrast: [0.5, 1.5]
     brightness: [-50, 50]
-  crop_resize:
-    x_start: 50
-    y_start: 50
-    x_end: 350
-    y_end: 350
+#  crop_resize:
+#    x_start: 50
+#    y_start: 50
+#    x_end: 350
+#    y_end: 350
 
 # Basis data paths
 base_train_data: "data/training/images/"

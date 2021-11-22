@@ -21,9 +21,10 @@ def build_dataset(config):
     gt_dir = config.gt_data
     resize_test = config.resize_test
     gt_thresh = config.gt_thresh
+    pad_train = config.pad_size
 
     if config.dataset == 'basic':
-        dataset = BaseDataset(train_dir, gt_dir, gt_thresh, resize_test)
+        dataset = BaseDataset(train_dir, gt_dir, gt_thresh, resize_test, pad_train)
     else:
         raise KeyError("Dataset specified not implemented")
     return dataset

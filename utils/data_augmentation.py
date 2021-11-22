@@ -7,6 +7,7 @@ import numpy as np
 from utils.config import read_config
 import matplotlib.image as mpimg
 
+
 class Augmenter:
     def __init__(self, cfg):
         self.cfg = cfg

@@ -72,11 +72,13 @@ if __name__ == '__main__':
     train(net, dataset, config, writer, rng=rng, device=device)
 
     # TODO: ideas:
-    # Look at 3D MININet architecture
+    # Look at 3D MININet architecture and UNet++ architecture and dilated convolutions
     # See differences in losses CE or FocalLoss
     # Check gt_thresh importance
     # Check difference between resizing test image before and after network or padding training image in order to have same dimension with test
     # Augmentations
     # Regularization
     # Transfer learning with VGG16
-    # Preprocess images with erosion and dilation
+    # Postprocess images with erosion and dilation
+    # Check learning rate schedulers (especially CLR)
+    # Check optimizers (maybe Adam or AdamW)

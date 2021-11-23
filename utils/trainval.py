@@ -62,7 +62,7 @@ def train(net, dataset, config, writer, rng, device='cpu'):
         criterion = nn.CrossEntropyLoss
 
     global_step = 0
-    max_f1 = 0
+    max_val_score = 0
     logging.info(f'Training started !')
     for epoch in tqdm(range(epochs)):
         # Train step
@@ -113,9 +113,10 @@ def train(net, dataset, config, writer, rng, device='cpu'):
         # TODO: Check this best metric condition
         # if save_model_interval > 0 and (epoch + 1) % save_model_interval == 0:
         # if not np.isnan(f1_submission) and f1_submission > max_f1:
-        if val_dice_score > max_f1:
-            max_f1 = val_dice_score
-            print("Current maximum score is: {}".format(max_f1))
+        if val_dice_score > max_val_score:
+            max_val_score = val_dice_score
+            print("Current maximum validation score is: {}".format(max_val_score))
+            print("Current maximum submission score is: {}".format(f1_submission))
             checkpoint_dir = checkpoints_path + experiment_name
             if not os.path.exists(checkpoint_dir):
                 os.makedirs(checkpoint_dir)

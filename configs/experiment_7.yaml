@@ -1,3 +1,5 @@
+# DO NOT CHANGE THIS
+
 # Config name
 name: ''
 
@@ -6,7 +8,7 @@ dataset: 'basic'
 augmentation_type: ''
 
 # Weights pretraining
-pretrain: 'pretrained_weights/vgg13_bn-abd245e5.pth'
+pretrain: null
 
 # Proccessing thresholds
 gt_thresh: 0.2
@@ -54,3 +56,5 @@ viz_path: "visualizations/"
 
 
 # Comments:
+
+# Experiment 6 reran -> score: 79.88 - submission score is 82.59  - TEST SCORE is 77.7  !!!

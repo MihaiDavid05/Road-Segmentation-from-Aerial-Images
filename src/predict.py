@@ -18,6 +18,7 @@ def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('config_filename', type=str, help='Configuration filename that you want to use during the run.')
     parser.add_argument('model_checkpoint', type=str, help='Path to a model')
+    # TODO: change checkpoint path to checkpoint name or experiment name chckpoint folder
     parser.add_argument('--save', action='store_true', help='Save predicted masks')
 
     return parser.parse_args()

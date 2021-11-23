@@ -66,6 +66,7 @@ if __name__ == '__main__':
     # Load pretrained VGG13
     if config.pretrain is not None:
         net = load_pretrain_model(net, config)
+        logging.info(f'Loaded pretrained weights!\n')
 
     # Train network
     writer = SummaryWriter(log_dir=log_dir)

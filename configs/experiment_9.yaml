@@ -24,7 +24,7 @@ resize_test: True
 pad_size: null
 
 # Training parameters
-epochs: 10
+epochs: 30
 batch_size: 2
 num_workers: 2
 learning_rate: 0.0001
@@ -57,4 +57,4 @@ viz_path: "visualizations/"
 
 # Comments:
 
-# Pretrained weights from VGG13 used -> score: 82.57 - submission score is 85.11  - TEST SCORE is 80.4 !!!
+# Pretrained weights from VGG13 used (30 epochs, added from 8) -> score: 85.17  - submission score is 86.43  - TEST SCORE is 81.6 !!!

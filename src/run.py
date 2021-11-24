@@ -2,6 +2,7 @@ import os
 import torch
 import argparse
 import logging
+import datetime
 from utils.config import *
 from utils.builders import *
 from utils.trainval import train
@@ -44,8 +45,8 @@ if __name__ == '__main__':
         os.mkdir(log_dir)
     log_filename = log_dir + '/log.log'
     if os.path.exists(log_filename):
-        # TODO: Change this behaviour
-        os.remove(log_filename)
+        now = datetime.datetime.now()
+        log_filename = log_dir + '/log_' + str(now.minute) + '_' + str(now.second) + '.log'
     logging.basicConfig(filename=log_filename, level=logging.INFO, format='%(levelname)s: %(message)s')
     logging.info(f'Configuration file used is <{config.name}>\n')
 
@@ -73,13 +74,13 @@ if __name__ == '__main__':
     train(net, dataset, config, writer, rng=rng, device=device)
 
     # TODO: ideas:
+    # DONE: See differences in losses CE or FocalLoss (CE IS better for 100 training images, maybe try for augmented dataset) !!!!!!!
+
     # Look at 3D MININet architecture and UNet++ architecture and dilated convolutions
-    # See differences in losses CE or FocalLoss
     # Check gt_thresh importance
     # Check difference between resizing test image before and after network or padding training image in order to have same dimension with test
     # Augmentations
     # Regularization
-    # Transfer learning with VGG16
-    # Postprocess images with erosion and dilation
+    # Post process images with erosion and dilation
     # Check learning rate schedulers (especially CLR)
     # Check optimizers (maybe Adam or AdamW)

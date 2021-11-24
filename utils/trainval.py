@@ -59,7 +59,7 @@ def train(net, dataset, config, writer, rng, device='cpu'):
     if config.loss_type == 'focal':
         criterion = FocalLoss(gamma=config.focal_gamma, alpha=config.focal_alpha)
     else:
-        criterion = nn.CrossEntropyLoss
+        criterion = nn.CrossEntropyLoss()
 
     global_step = 0
     max_val_score = 0
@@ -80,8 +80,6 @@ def train(net, dataset, config, writer, rng, device='cpu'):
             pred_masks = net(images)
             # Compute loss
             loss = criterion(pred_masks, binary_mask)
-            # loss += dice_loss(F.softmax(pred_masks, dim=1).float()[:, 1, ...], F.one_hot(binary_mask, net.n_classes)
-            #                   .permute(0, 3, 1, 2).float()[:, 1, ...], multiclass=False)
             loss += dice_loss(F.softmax(pred_masks, dim=1).float(), F.one_hot(binary_mask, net.n_classes).
                               permute(0, 3, 1, 2).float(), multiclass=True)
             # Write summaries to TensorBoard

@@ -74,12 +74,12 @@ if __name__ == '__main__':
     train(net, dataset, config, writer, rng=rng, device=device)
 
     # TODO: ideas:
-    # DONE: See differences in losses CE or FocalLoss (CE IS better for 100 training images, maybe try for augmented dataset) !!!!!!!
+    # DONE: See differences in losses CE or FocalLoss (CE IS better for 100 training images,try for augmented dataset) !
+    # DONE: Augmentations
 
     # Look at 3D MININet architecture and UNet++ architecture and dilated convolutions
     # Check gt_thresh importance
-    # Check difference between resizing test image before and after network or padding training image in order to have same dimension with test
-    # Augmentations
+    # Check difference between resizing test image  or padding training image in order to have same dimension with test
     # Regularization
     # Post process images with erosion and dilation
     # Check learning rate schedulers (especially CLR)

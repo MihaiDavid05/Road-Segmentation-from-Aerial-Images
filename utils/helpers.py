@@ -100,7 +100,8 @@ def mask_to_image(mask):
     if mask.ndim == 2:
         return Image.fromarray((mask * 255).astype(np.uint8))
     elif mask.ndim == 3:
-        return Image.fromarray((np.argmax(mask, axis=0) * 255 / mask.shape[0]).astype(np.uint8))
+        z = np.argmax(mask, axis=0) * 255 #/ mask.shape[0]
+        return Image.fromarray(z.astype(np.uint8), 'L')
 
 
 def img_float_to_uint8(img):

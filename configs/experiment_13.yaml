@@ -5,10 +5,10 @@ name: ''
 
 # Dataset type
 dataset: 'basic'
-augmentation_type: ''
+augmentation_type: 'augment_2'
 
-# Weights pretraining
-pretrain: null
+# Weights pretraining (path)
+pretrain: 'pretrained_weights/vgg13_bn-abd245e5.pth'
 
 # Proccessing thresholds
 gt_thresh: 0.2
@@ -21,11 +21,11 @@ channels: 3
 classes: 2
 # resize predicted test image in order to fit the original test image
 resize_test: True
-# padding size used for padding training image in order to have same dimension with test image
+# padding size used for padding training image in order to have same dimension with test image (int, 104)
 pad_size: null
 
 # Training parameters
-epochs: 40
+epochs: 100
 batch_size: 2
 num_workers: 2
 learning_rate: 0.0001
@@ -34,13 +34,11 @@ weight_decay: 0.00000001
 train_data_ratio: 0.8
 save_checkpoints_interval: 5
 patience: 2
-loss_type: 'focal'
-focal_gamma: 2
-focal_alpha: 0.25
+loss_type: 'cross_entropy'
 
 # Data paths
-train_data: "data/training/images/"
-gt_data: "data/training/groundtruth/"
+train_data: "data/training/images_augment_2/"
+gt_data: "data/training/groundtruth_augment_2/"
 test_data: "data/test_set_images/"
 
 # Submissions folder
@@ -57,9 +55,5 @@ viz_path: "visualizations/"
 
 
 # Comments:
-
-# Changed ony epochs to 40 from 10 (in exp 5), score: 0.7916 - submission score is 82.21 - TEST SCORE is 77.5 !!!
-
-# Colab -> score: 80.89  - submission score is ?  - TEST SCORE is 78.7
-# Colab (with batch 8) -> score: 77.5 - submission score is 79.5 - TEST SCORE is 74.3 :((((((((((
-  # - maybe increase the learning rate, and do not use a lr_scheduler: https://medium.com/mini-distill/effect-of-batch-size-on-training-dynamics-21c14f7a716e
+# Added augmentations (2) and increased epochs: score is 91, submission score is 91.91, TEST SCORE IS 82.4 !!!!!
+# The first set of augmentations is better than this one.

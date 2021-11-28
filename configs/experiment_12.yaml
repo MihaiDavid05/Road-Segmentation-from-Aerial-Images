@@ -16,6 +16,7 @@ foreground_thresh: 0.25
 
 # Model parameters
 model: 'unet'
+dropout: False
 channels: 3
 classes: 2
 # resize predicted test image in order to fit the original test image
@@ -54,4 +55,4 @@ viz_path: "visualizations/"
 
 
 # Comments:
-# Added augmentations and increased epochs
+# Added augmentations and increased epochs: score 90.81, submission score nan, TEST SCORE 83.3 !!! -> OVERFITTING

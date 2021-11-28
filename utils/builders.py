@@ -7,7 +7,7 @@ def build_network(config):
     Build netowrk according to type specified in config.
     """
     if config.model == 'unet':
-        net = UNet(n_channels=config.channels, n_classes=config.classes, bilinear=True)
+        net = UNet(n_channels=config.channels, n_classes=config.classes, bilinear=True, dropout=config.dropout)
     else:
         raise KeyError("Model specified not implemented")
     return net

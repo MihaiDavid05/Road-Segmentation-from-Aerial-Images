@@ -3,6 +3,7 @@ import argparse
 import logging
 import cv2
 import imutils
+import datetime
 import numpy as np
 from utils.config import read_config
 import matplotlib.image as mpimg
@@ -100,6 +101,8 @@ if __name__ == '__main__':
     log_filename = log_dir + '/augmentation_log.log'
     if os.path.exists(log_filename):
         os.remove(log_filename)
+        now = datetime.datetime.now()
+        log_filename = log_dir + '/augmentation_log_' + str(now.minute) + '_' + str(now.second) + '.log'
     logging.basicConfig(filename=log_filename, level=logging.INFO, format='%(levelname)s: %(message)s')
     logging.info(f'Configuration file used is <{config["name"]}>\n')
 

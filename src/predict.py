@@ -57,7 +57,6 @@ if __name__ == '__main__':
     # Load weights
     checkpoint_path = 'checkpoints/' + config.name + '/checkpoint_best.pth'
     net.load_state_dict(torch.load(checkpoint_path, map_location=device))
-    logging.info(f'Loaded model {args.model_checkpoint}')
 
     # Generate prediction
     predict(args, config, net, dataset, device)

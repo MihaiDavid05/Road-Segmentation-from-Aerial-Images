@@ -16,6 +16,7 @@ foreground_thresh: 0.25
 
 # Model parameters
 model: 'unet'
+dropout: False
 channels: 3
 classes: 2
 # resize predicted test image in order to fit the original test image

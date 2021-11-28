@@ -5,7 +5,7 @@ name: ''
 
 # Dataset type
 dataset: 'basic'
-augmentation_type: ''
+augmentation_type: 'augment_1'
 
 # Weights pretraining (path)
 pretrain: 'pretrained_weights/vgg13_bn-abd245e5.pth'
@@ -16,7 +16,7 @@ foreground_thresh: 0.25
 
 # Model parameters
 model: 'unet'
-dropout: False
+dropout: True
 channels: 3
 classes: 2
 # resize predicted test image in order to fit the original test image
@@ -25,7 +25,7 @@ resize_test: True
 pad_size: null
 
 # Training parameters
-epochs: 30
+epochs: 50
 batch_size: 2
 num_workers: 2
 learning_rate: 0.0001
@@ -37,8 +37,8 @@ patience: 2
 loss_type: 'cross_entropy'
 
 # Data paths
-train_data: "data/training/images/"
-gt_data: "data/training/groundtruth/"
+train_data: "data/training/images_augment_1/"
+gt_data: "data/training/groundtruth_augment_1/"
 test_data: "data/test_set_images/"
 
 # Submissions folder
@@ -55,7 +55,4 @@ viz_path: "visualizations/"
 
 
 # Comments:
-
-# Pretrained weights from VGG13 used (changed loss to cross-entropy fom 9) -> score: 85.2 - submission score is 87.2 - TEST SCORE is 82.2  !!!
-
-# Same but taking into consideration onlt foreground in dice loss -> score:  - submission score is:  - TEST SCORE IS
+# Added dropout (on augment_1): score is

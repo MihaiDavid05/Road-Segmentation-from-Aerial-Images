@@ -52,7 +52,6 @@ def train(net, dataset, config, writer, rng, device='cpu'):
     train_loader = DataLoader(train_dataset, shuffle=True, batch_size=batch_size, **loader_args)
     val_loader = DataLoader(val_dataset, shuffle=False, batch_size=1, drop_last=True, **loader_args)
 
-    # TODO: Check this optimizer
     # Set up the optimizer, loss and learning rate scheduler
     optimizer = optim.RMSprop(net.parameters(), lr=learning_rate, weight_decay=weight_decay, momentum=momentum)
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'max', patience=patience)

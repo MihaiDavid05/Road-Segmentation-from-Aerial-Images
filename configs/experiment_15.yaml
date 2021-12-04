@@ -19,8 +19,10 @@ model: 'unet'
 dropout: True
 channels: 3
 classes: 2
-# resize predicted test image in order to fit the original test image
-resize_test: True
+# resize predicted test image in order to fit the original test image (bool)
+resize_test: False
+# Splir image in 4x400x400 patches(bool)
+predict_patches: True
 # padding size used for padding training image in order to have same dimension with test image (int, 104)
 pad_size: null
 

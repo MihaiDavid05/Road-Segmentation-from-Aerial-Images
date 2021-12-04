@@ -18,6 +18,49 @@ def img_crop(im, w, h):
     return list_patches
 
 
+def crop_image(img, w=400, h=400):
+    orig_width, orig_height = img.size
+
+    # Setting the points for cropped image
+    crop1 = (0, 0, w, h)
+    crop2 = (orig_width - w, 0, orig_width, h)
+    crop3 = (0, orig_height - h, w, orig_height)
+    crop4 = (orig_width - w, orig_height - h, orig_width, orig_height)
+
+    # Cropped image of above dimension
+    im1 = img.crop(crop1)
+    im2 = img.crop(crop2)
+    im3 = img.crop(crop3)
+    im4 = img.crop(crop4)
+
+    return [im1, im2, im3, im4]
+
+
+def overlay_masks(masks, orig_img):
+    """
+    Mask patches are in next order: upper left, upper right, lower left, lower right.
+    Args:
+        masks: Patches of images.
+        orig_img: Original image.
+
+    Returns: A full sized image (ndarray)
+
+    """
+    orig_w, orig_h = orig_img.size
+
+    if len(masks) == 1:
+        return masks
+    else:
+        # TODO: Implement this
+        overlay_12 = []
+        overlay_24 = []
+        overlay_34 = []
+        overlay_13 = []
+        overlay_1234 = []
+
+        return True
+
+
 def value_to_class(v, foreground_thresh):
     df = np.sum(v)
     if df > foreground_thresh:

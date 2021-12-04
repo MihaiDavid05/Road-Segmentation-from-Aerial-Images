@@ -18,6 +18,7 @@ def get_args():
     """
     parser = argparse.ArgumentParser()
     parser.add_argument('config_filename', type=str, help='Configuration filename that you want to use during the run.')
+    parser.add_argument('model', type=str, help='Model corresponding to an experiment.')
     parser.add_argument('--save', action='store_true', help='Save predicted masks')
 
     return parser.parse_args()
@@ -55,7 +56,7 @@ if __name__ == '__main__':
     dataset = build_dataset(config)
 
     # Load weights
-    checkpoint_path = 'checkpoints/' + config.name + '/checkpoint_best.pth'
+    checkpoint_path = 'checkpoints/' + args.model + '/checkpoint_best.pth'
     net.load_state_dict(torch.load(checkpoint_path, map_location=device))
 
     # Generate prediction

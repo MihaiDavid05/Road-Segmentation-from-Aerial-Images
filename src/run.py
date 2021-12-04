@@ -77,7 +77,7 @@ if __name__ == '__main__':
     # DONE: See differences in losses CE or FocalLoss (CE IS better for 100 training images,try for augmented dataset) !
     # DONE: Augmentations
 
-    # Look at 3D MININet architecture and UNet++ architecture and dilated convolutions
+    # Look at 3D MININet architecture and UNet++ architecture and dilated convolutions and Eff-UNet
     # Check gt_thresh importance
     # Check difference between resizing test image  or padding training image in order to have same dimension with test
     # Regularization

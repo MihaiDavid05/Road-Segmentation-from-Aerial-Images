@@ -9,7 +9,7 @@ from PIL import Image
 from torch import optim
 from torch.utils.data import DataLoader, Subset
 from utils.loss import *
-from utils.helpers import submission_format_metric, mask_to_image
+from utils.helpers import submission_format_metric, mask_to_image, crop_image, overlay_masks
 from torchvision import transforms
 from utils.mask_to_submission import masks_to_submission
 
@@ -198,13 +198,15 @@ def predict_image(net,
         else:
             probs = torch.sigmoid(output)[0]
 
-        tf = transforms.Compose([
-            transforms.ToPILImage(),
-            transforms.Resize((full_img.size[1], full_img.size[0])),
-            transforms.ToTensor()
-        ])
-
-        proba_mask = tf(probs.cpu()).squeeze()
+        if resize_test:
+            tf = transforms.Compose([
+                transforms.ToPILImage(),
+                transforms.Resize((full_img.size[1], full_img.size[0])),
+                transforms.ToTensor()
+            ])
+            proba_mask = tf(probs.cpu()).squeeze()
+        else:
+            proba_mask = probs.cpu().squeeze()
 
         if net.n_classes == 1:
             one_hot_mask = (proba_mask > out_threshold).numpy()
@@ -227,12 +229,32 @@ def predict(args, config, net, dataset, device):
         logging.info(f'\nPredicting image {filename}')
         img = Image.open(config.test_data + folder + '/' + filename)
         # Predict a mask
-        proba_mask, one_hot_mask = predict_image(net=net,
-                                                 full_img=img,
-                                                 dataset=dataset,
-                                                 resize_test=config.resize_test,
-                                                 out_threshold=0.5,
-                                                 device=device)
+        if config.predict_patches:
+            # Get 4 400x400 patches
+            patches = crop_image(img, 400, 400)
+        else:
+            patches = img
+        proba_masks = []
+        one_hot_masks = []
+        # For each patch get a prediction
+        for patch in patches:
+            proba_mask, one_hot_mask = predict_image(net=net,
+                                                     full_img=patch,
+                                                     dataset=dataset,
+                                                     resize_test=config.resize_test,
+                                                     out_threshold=0.5,
+                                                     device=device)
+            proba_masks.append(proba_mask)
+            one_hot_masks.append(one_hot_mask)
+
+        if len(proba_masks) > 1:
+            proba_mask = overlay_masks(proba_masks, img)
+            # TODO: do something with the one hot encoded masks below
+            one_hot_mask = 0
+        else:
+            proba_mask = proba_masks[0]
+            one_hot_mask = one_hot_masks[0]
+
         foreground_mask = proba_mask[1]
         preds.append((filename, foreground_mask))
 

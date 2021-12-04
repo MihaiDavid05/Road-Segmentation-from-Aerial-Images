@@ -36,29 +36,50 @@ def crop_image(img, w=400, h=400):
     return [im1, im2, im3, im4]
 
 
-def overlay_masks(masks, orig_img):
+def overlay_masks(masks, orig_img, mode='avg'):
     """
     Mask patches are in next order: upper left, upper right, lower left, lower right.
     Args:
         masks: Patches of images.
         orig_img: Original image.
+        mode: Way of combining the patches - average or maximum between overlapping areas.
 
     Returns: A full sized image (ndarray)
 
     """
+    masks = [x.transpose((1, 2, 0)) for x in masks]
     orig_w, orig_h = orig_img.size
+    w, h = masks[0].shape[0], masks[0].shape[1]
 
     if len(masks) == 1:
         return masks
     else:
-        # TODO: Implement this
-        overlay_12 = []
-        overlay_24 = []
-        overlay_34 = []
-        overlay_13 = []
-        overlay_1234 = []
+        divider = np.ones((orig_w, orig_h))
+        divider[(orig_h - h):h, :] = 2
+        divider[:, (orig_w - w):w] = 2
+        divider[(orig_h - h):h, (orig_w - w):w] = 4
+        masks[0] = np.pad(masks[0], ((0, orig_h - h), (0, orig_w - w), (0, 0)), 'constant', constant_values=(0, 0))
+        masks[1] = np.pad(masks[1], ((0, orig_h - h), (orig_w - w, 0), (0, 0)), 'constant', constant_values=(0, 0))
+        masks[2] = np.pad(masks[2], ((orig_h - h, 0), (0, orig_w - w), (0, 0)), 'constant', constant_values=(0, 0))
+        masks[3] = np.pad(masks[3], ((orig_h - h, 0), (orig_w - w, 0), (0, 0)), 'constant', constant_values=(0, 0))
 
-        return True
+        fgr_mask = np.stack([m[:, :, 1] for m in masks], axis=-1)
+        if mode == 'avg':
+            fgr_mask = np.sum(fgr_mask, axis=-1)
+            fgr_mask = fgr_mask / divider
+        else:
+            fgr_mask = np.max(fgr_mask, axis=-1)
+
+        bgr_mask = np.stack([m[:, :, 0] for m in masks], axis=-1)
+        if mode == 'avg':
+            bgr_mask = np.sum(bgr_mask, axis=-1)
+            bgr_mask = bgr_mask / divider
+        else:
+            bgr_mask = np.max(bgr_mask, axis=-1)
+
+        proba_mask = np.stack([bgr_mask, fgr_mask], axis=-1).transpose((2, 0, 1))
+
+        return proba_mask
 
 
 def value_to_class(v, foreground_thresh):
@@ -139,8 +160,11 @@ def get_f1(preds, labels):
     return f1_score
 
 
-def mask_to_image(mask):
+def mask_to_image(mask, from_patches=False):
+    # mask = mask[::-1, :, :]
     if mask.ndim == 2:
+        if not from_patches:
+            mask = 1 - mask
         return Image.fromarray((mask * 255).astype(np.uint8))
     elif mask.ndim == 3:
         z = np.argmax(mask, axis=0) * 255 #/ mask.shape[0]

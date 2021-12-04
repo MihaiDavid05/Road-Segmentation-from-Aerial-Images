@@ -5,7 +5,7 @@ name: ''
 
 # Dataset type
 dataset: 'basic'
-augmentation_type: 'augment_1'
+augmentation_type: 'augment_2'
 
 # Weights pretraining (path)
 pretrain: 'pretrained_weights/vgg13_bn-abd245e5.pth'
@@ -28,7 +28,6 @@ patch_combine: 'avg'
 # padding size used for padding training image in order to have same dimension with test image (int, 104)
 pad_size: null
 
-
 # Training parameters
 epochs: 50
 batch_size: 2
@@ -44,8 +43,8 @@ patience: 2
 loss_type: 'cross_entropy'
 
 # Data paths
-train_data: "data/training/images_augment_1/"
-gt_data: "data/training/groundtruth_augment_1/"
+train_data: "data/training/images_augment_2/"
+gt_data: "data/training/groundtruth_augment_2/"
 test_data: "data/test_set_images/"
 
 # Submissions folder
@@ -62,12 +61,4 @@ viz_path: "visualizations/"
 
 
 # Comments:
-# Using 4 patches of 400x400 and average them : TEST SCORE 91
-# Using 4 patches of 400x400 and max them : TEST SCORE 90.9
-
-# FGR THRESH
-# 0.15: 89.4
-# 0.20: 90.5
-# 0.25: 91 accuracy is 95.1
-# 0.30: 91 accuracy is 95.2
-# 0.35: 90.2
+# Added augmentations(2) and dropout: score is , submission score is , TEST SCORE IS  !!!!!

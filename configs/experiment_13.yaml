@@ -21,6 +21,11 @@ channels: 3
 classes: 2
 # resize predicted test image in order to fit the original test image
 resize_test: True
+# Splir image in 4x400x400 patches(bool)
+predict_patches: False
+# Way of combining patches - max or avg
+patch_combine: 'avg'
+# padding size used for padding training image in order to have same dimension with test image (int, 104)
 # padding size used for padding training image in order to have same dimension with test image (int, 104)
 pad_size: null
 
@@ -28,6 +33,8 @@ pad_size: null
 epochs: 100
 batch_size: 2
 num_workers: 2
+# rmsprop or adam
+optim_type: 'rmsprop'
 learning_rate: 0.0001
 momentum: 0.9
 weight_decay: 0.00000001

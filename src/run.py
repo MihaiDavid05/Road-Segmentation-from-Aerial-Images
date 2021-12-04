@@ -76,11 +76,10 @@ if __name__ == '__main__':
     # TODO: ideas:
     # DONE: See differences in losses CE or FocalLoss (CE IS better for 100 training images,try for augmented dataset) !
     # DONE: Augmentations
+    # DONE: Take maximum when combining patches
+    # DONE: Check fgr_thresh importance
+    # Check optimizers (maybe Adam or AdamW) + Check learning rate schedulers (especially CLR) + weight decay
 
-    # Look at 3D MININet architecture and UNet++ architecture and dilated convolutions and Eff-UNet
-    # Check gt_thresh importance
-    # Check difference between resizing test image  or padding training image in order to have same dimension with test
-    # Regularization
-    # Post process images with erosion and dilation
-    # Check learning rate schedulers (especially CLR)
-    # Check optimizers (maybe Adam or AdamW)
+    # Post-process images with erosion and dilation
+    # Check gt_thresh
+    # Look at 3D MININet architecture and dilated convolutions

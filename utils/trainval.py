@@ -53,7 +53,11 @@ def train(net, dataset, config, writer, rng, device='cpu'):
     val_loader = DataLoader(val_dataset, shuffle=False, batch_size=1, drop_last=True, **loader_args)
 
     # Set up the optimizer, loss and learning rate scheduler
-    optimizer = optim.RMSprop(net.parameters(), lr=learning_rate, weight_decay=weight_decay, momentum=momentum)
+    if config.optim_type == 'rmsprop':
+        optimizer = optim.RMSprop(net.parameters(), lr=learning_rate, weight_decay=weight_decay, momentum=momentum)
+    else:
+        optimizer = optim.Adam(net.parameters(), lr=0.0001, betas=(0.9, 0.999), eps=1e-08, weight_decay=0, amsgrad=False)
+
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'max', patience=patience)
     if config.loss_type == 'focal':
         criterion = FocalLoss(gamma=config.focal_gamma, alpha=config.focal_alpha)
@@ -107,9 +111,6 @@ def train(net, dataset, config, writer, rng, device='cpu'):
         writer.add_scalar("Submission_Score/val", f1_submission, global_step)
 
         # Save models
-        # TODO: Check this best metric condition
-        # if save_model_interval > 0 and (epoch + 1) % save_model_interval == 0:
-        # if not np.isnan(f1_submission) and f1_submission > max_f1:
         if val_dice_score > max_val_score:
             max_val_score = val_dice_score
             print("Current maximum validation score is: {}".format(max_val_score))
@@ -118,7 +119,6 @@ def train(net, dataset, config, writer, rng, device='cpu'):
             if not os.path.exists(checkpoint_dir):
                 os.makedirs(checkpoint_dir)
             torch.save(net.state_dict(), checkpoint_dir + '/checkpoint_best.pth')
-            # torch.save(net.state_dict(), checkpoint_dir + '/checkpoint_epoch{}.pth'.format(epoch + 1))
             logging.info(f'Checkpoint {epoch + 1} saved!')
 
 
@@ -222,7 +222,7 @@ def predict(args, config, net, dataset, device):
     viz_folder = config.viz_path + config.name
     if not os.path.exists(viz_folder):
         os.mkdir(viz_folder)
-    submission_path = config.output_path + "submission_" + config.name + '.csv'
+    submission_path = config.output_path + "submission_" + config.name + '_model14_max_patch' + '.csv'
     preds = []
     for i, folder in tqdm(enumerate(test_folders)):
         filename = os.listdir(config.test_data + folder)[0]
@@ -233,7 +233,7 @@ def predict(args, config, net, dataset, device):
             # Get 4 400x400 patches
             patches = crop_image(img, 400, 400)
         else:
-            patches = img
+            patches = [img]
         proba_masks = []
         one_hot_masks = []
         # For each patch get a prediction
@@ -248,9 +248,9 @@ def predict(args, config, net, dataset, device):
             one_hot_masks.append(one_hot_mask)
 
         if len(proba_masks) > 1:
-            proba_mask = overlay_masks(proba_masks, img)
+            proba_mask = overlay_masks(proba_masks, img, mode=config.patch_combine)
             # TODO: do something with the one hot encoded masks below
-            one_hot_mask = 0
+            one_hot_mask = overlay_masks(one_hot_masks, img, mode=config.patch_combine)
         else:
             proba_mask = proba_masks[0]
             one_hot_mask = one_hot_masks[0]
@@ -260,11 +260,17 @@ def predict(args, config, net, dataset, device):
 
         # Save prediction
         if args.save:
-            out_filename = test_folders[i] + '.png'
+            out_filename = test_folders[i] + '_from_patches.png'
             output_path = viz_folder + '/' + out_filename
-            result = mask_to_image(one_hot_mask)
+            result = mask_to_image(one_hot_mask[1], from_patches=len(patches) > 1)
             result.save(output_path)
             logging.info(f'Mask saved to {out_filename}')
 
     # Convert to submission format and save to csv
     masks_to_submission(submission_path, config.foreground_thresh, preds)
+
+    # fgr_threshs = [0.15, 0.20, 0.25, 0.30, 0.35]
+    # for t in fgr_threshs:
+    #     submission_path = config.output_path + "submission_" + config.name + '_model14_avg_patch_' + str(t*100) + '.csv'
+    #     masks_to_submission(submission_path, t, preds)
+

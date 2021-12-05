@@ -2,6 +2,8 @@ import torch
 import os
 from tqdm import tqdm
 import logging
+import ttach as tta
+import cv2
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
@@ -184,14 +186,42 @@ def predict_image(net,
                   dataset,
                   device,
                   resize_test=True,
-                  out_threshold=0.5):
+                  out_threshold=0.5,
+                  test_time_aug=False):
     net.eval()
     img = torch.from_numpy(dataset.preprocess(full_img, is_mask=False, is_test=True, resize_test=resize_test))
     img = img.unsqueeze(0)
     img = img.to(device=device, dtype=torch.float32)
 
+    transformations_test_time_aug = tta.Compose(
+        [
+            tta.HorizontalFlip(),
+            tta.VerticalFlip(),
+            tta.Rotate90(angles=[0, 90, 180, 270])
+        ]
+    )
     with torch.no_grad():
-        output = net(img)
+        if test_time_aug:
+            labels = []
+            for transformer in transformations_test_time_aug:
+                # augment image
+                augmented_image = transformer.augment_image(img)
+                # pass to model
+                model_output = net(augmented_image)
+                # TODO: check this should be (B, C, H, W)
+                # reverse augmentation for label
+                deaug_label = transformer.deaugment_mask(model_output)
+                # save results
+                labels.append(deaug_label)
+            # reduce results
+            bg_mask = torch.cat([t[:, 0, ...] for t in labels], dim=0)
+            bg_mask = torch.sum(bg_mask, dim=0) / bg_mask.size(0)
+            fg_mask = torch.cat([t[:, 1, ...] for t in labels], dim=0)
+            fg_mask = torch.sum(fg_mask, dim=0) / fg_mask.size(0)
+
+            output = torch.cat([bg_mask.unsqueeze(dim=0), fg_mask.unsqueeze(dim=0)], dim=0).unsqueeze(dim=0)
+        else:
+            output = net(img)
 
         if net.n_classes > 1:
             probs = F.softmax(output, dim=1)[0]
@@ -222,7 +252,7 @@ def predict(args, config, net, dataset, device):
     viz_folder = config.viz_path + config.name
     if not os.path.exists(viz_folder):
         os.mkdir(viz_folder)
-    submission_path = config.output_path + "submission_" + config.name + '_model14_max_patch' + '.csv'
+    submission_path = config.output_path + "submission_" + config.name + '_' + config.patch_combine + '_patch_ttime_aug' + '.csv'
     preds = []
     for i, folder in tqdm(enumerate(test_folders)):
         filename = os.listdir(config.test_data + folder)[0]
@@ -243,14 +273,28 @@ def predict(args, config, net, dataset, device):
                                                      dataset=dataset,
                                                      resize_test=config.resize_test,
                                                      out_threshold=0.5,
+                                                     test_time_aug=config.test_time_aug,
                                                      device=device)
             proba_masks.append(proba_mask)
             one_hot_masks.append(one_hot_mask)
 
         if len(proba_masks) > 1:
             proba_mask = overlay_masks(proba_masks, img, mode=config.patch_combine)
-            # TODO: do something with the one hot encoded masks below
-            one_hot_mask = overlay_masks(one_hot_masks, img, mode=config.patch_combine)
+
+            # proba_mask[0] = proba_mask[0] * 255
+            # proba_mask[0] = proba_mask[0].astype('uint8')
+            # kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (8, 8))
+            # proba_mask[0] = cv2.morphologyEx(proba_mask[0], cv2.MORPH_OPEN, kernel)
+            # proba_mask[0] = proba_mask[0] / 255
+            #
+            # proba_mask[1] = proba_mask[1] * 255
+            # proba_mask[1] = proba_mask[1].astype('uint8')
+            # kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (8, 8))
+            # proba_mask[1] = cv2.morphologyEx(proba_mask[1], cv2.MORPH_OPEN, kernel)
+            # proba_mask[1] = proba_mask[1] / 255
+
+            one_hot_mask = F.one_hot(torch.tensor(proba_mask,
+                                                  device='cpu').argmax(dim=0), net.n_classes).permute(2, 0, 1).numpy()
         else:
             proba_mask = proba_masks[0]
             one_hot_mask = one_hot_masks[0]
@@ -262,7 +306,8 @@ def predict(args, config, net, dataset, device):
         if args.save:
             out_filename = test_folders[i] + '_from_patches.png'
             output_path = viz_folder + '/' + out_filename
-            result = mask_to_image(one_hot_mask[1], from_patches=len(patches) > 1)
+            out_mask = one_hot_mask[1]
+            result = mask_to_image(out_mask, from_patches=len(patches) > 1)
             result.save(output_path)
             logging.info(f'Mask saved to {out_filename}')
 

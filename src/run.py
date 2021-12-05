@@ -74,12 +74,13 @@ if __name__ == '__main__':
     train(net, dataset, config, writer, rng=rng, device=device)
 
     # TODO: ideas:
-    # DONE: See differences in losses CE or FocalLoss (CE IS better for 100 training images,try for augmented dataset) !
-    # DONE: Augmentations
-    # DONE: Take maximum when combining patches
-    # DONE: Check fgr_thresh importance
-    # Check optimizers (maybe Adam or AdamW) + Check learning rate schedulers (especially CLR) + weight decay
+    # DONE: See differences in losses CE or FocalLoss ! - FOCAL WORSE
+    # DONE: Augmentations - BETTER
+    # DONE: Take maximum when combining patches _ WORSE
+    # DONE: Check fgr_thresh importance - IRRELEVANT
+    # DONE: Post-process images with erosion and dilation (OPEN MORPH) - IRRELEVANT
+    # DONE: Test time augmentations
 
-    # Post-process images with erosion and dilation
+    # Check optimizers (maybe Adam or AdamW) + Check learning rate schedulers (especially CLR) + weight decay
     # Check gt_thresh
     # Look at 3D MININet architecture and dilated convolutions

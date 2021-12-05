@@ -67,6 +67,19 @@ class Augmenter:
                           np.random.uniform(min_bright, max_bright), 0, 255)
         return [[new_img], [gt]]
 
+    def gamma_correction(self, img, gt):
+        gamma_corrections = self.augmentations["gamma_correction"]
+        new_images = []
+        new_gts = []
+        for gamma in gamma_corrections:
+            inv_gamma = 1.0 / gamma
+            table = np.array([((k / 255.0) ** inv_gamma) * 255 for k in np.arange(0, 256)]).astype("uint8")
+            # apply gamma correction using the lookup table
+            res = cv2.LUT(img, table)
+            new_images.append(res)
+            new_gts.append(gt)
+        return new_images, new_gts
+
     def save(self, img_name, image, gt):
         new_name = img_name + "_" + str(self.index + 1) + self.cfg["extension"]
         image_save_path = self.img_out_dir + new_name

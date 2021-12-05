@@ -43,6 +43,9 @@ save_checkpoints_interval: 5
 patience: 2
 loss_type: 'cross_entropy'
 
+# Test time augmentations
+test_time_aug: True
+
 # Data paths
 train_data: "data/training/images_augment_1/"
 gt_data: "data/training/groundtruth_augment_1/"
@@ -71,3 +74,5 @@ viz_path: "visualizations/"
 # 0.25: 91 accuracy is 95.1
 # 0.30: 91 accuracy is 95.2
 # 0.35: 90.2
+
+# WITH MORPH OPEN - also 91

@@ -44,7 +44,7 @@ patience: 2
 loss_type: 'cross_entropy'
 
 # Test time augmentations
-test_time_aug: False
+test_time_aug: True
 
 # Data paths
 train_data: "data/training/images_augment_3/"
@@ -65,4 +65,6 @@ viz_path: "visualizations/"
 
 
 # Comments:
-# Using augmentation_3 (100 ep, the rest as 15): score is , submission score is , TEST SCORE IS !!!!!
+# Using augmentation_3 (100 ep, the rest as 15)
+  # Without testtime aug: score is 93.97, submission score is nan, TEST SCORE IS 91.3 !!!!!
+  # With testtime aug: score is 93.97, submission score is nan, TEST SCORE IS !!!!!

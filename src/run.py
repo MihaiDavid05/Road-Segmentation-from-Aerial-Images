@@ -76,11 +76,12 @@ if __name__ == '__main__':
     # TODO: ideas:
     # DONE: See differences in losses CE or FocalLoss ! - FOCAL WORSE
     # DONE: Augmentations - BETTER
-    # DONE: Take maximum when combining patches _ WORSE
-    # DONE: Check fgr_thresh importance - IRRELEVANT
-    # DONE: Post-process images with erosion and dilation (OPEN MORPH) - IRRELEVANT
-    # DONE: Test time augmentations
+    # DONE: Take maximum when combining patches - WORSE
+    # DONE: Check fgr_thresh importance - 0.25 or 0.3
+    # DONE: Post-process images with erosion and dilation (OPEN MORPH) - SAME
+    # DONE: Test time augmentations - BETTER
 
     # Check optimizers (maybe Adam or AdamW) + Check learning rate schedulers (especially CLR) + weight decay
     # Check gt_thresh
-    # Look at 3D MININet architecture and dilated convolutions
+
+    # Look at dilated convolutions

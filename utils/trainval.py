@@ -208,7 +208,6 @@ def predict_image(net,
                 augmented_image = transformer.augment_image(img)
                 # pass to model
                 model_output = net(augmented_image)
-                # TODO: check this should be (B, C, H, W)
                 # reverse augmentation for label
                 deaug_label = transformer.deaugment_mask(model_output)
                 # save results

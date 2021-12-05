@@ -44,7 +44,7 @@ patience: 2
 loss_type: 'cross_entropy'
 
 # Test time augmentations
-test_time_aug: True
+test_time_aug: False
 
 # Data paths
 train_data: "data/training/images_augment_1/"
@@ -76,3 +76,4 @@ viz_path: "visualizations/"
 # 0.35: 90.2
 
 # WITH MORPH OPEN - also 91
+# TEST TIME AUG - 91.2

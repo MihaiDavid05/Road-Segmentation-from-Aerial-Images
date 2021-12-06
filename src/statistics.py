@@ -1,6 +1,5 @@
 from utils.helpers import *
 import glob
-import os
 import matplotlib.image as mpimg
 
 
@@ -16,7 +15,7 @@ def compute_pixel_wise(image, fg_thresh):
     return fg, bg
 
 
-def pixel_label_count(indices, gt, gt_thresholds, fg_thresh):
+def pixel_label_count(gt, gt_thresholds, fg_thresh):
     fg_pixel = {}
     bg_pixel = {}
 
@@ -37,10 +36,8 @@ def pixel_label_count(indices, gt, gt_thresholds, fg_thresh):
         bg_pixel[gt_thresh] /= n
         print("gt_thresh %0.2f:  fg_pixel = %f, bg_pixel = %f" % (gt_thresh, fg_pixel[gt_thresh], bg_pixel[gt_thresh]))
 
-    return fg_pixel, bg_pixel
 
-
-def patch_label_count(indices, gt, gt_thresholds, fg_thresh):
+def patch_label_count(gt, gt_thresholds, fg_thresh):
     fg_patch = {}
     bg_patch = {}
 
@@ -65,16 +62,15 @@ def patch_label_count(indices, gt, gt_thresholds, fg_thresh):
         bg_patch[gt_thresh] /= n
 
         print("gt_thresh %0.2f: fg_patch = %f, bg_patch = %f" % (gt_thresh, fg_patch[gt_thresh], bg_patch[gt_thresh]))
-    return fg_patch, bg_patch
 
 
 if __name__ == '__main__':
     indices = np.arange(1, 101, 1)
-    gt = [mpimg.imread(glob.glob("data/training/groundtruth/*" + str(idx) + '.png')[0]) for idx in indices]
-    gt_thresholds = np.arange(0.2, 0.55, 0.05)
-    fg_thresh = 0.25
+    gts = [mpimg.imread(glob.glob("data/training/groundtruth/*" + str(idx) + '.png')[0]) for idx in indices]
+    gt_threshs = np.arange(0.2, 0.55, 0.05)
+    fg_threshold = 0.25
 
-    fb_pixel, bg_pixel = pixel_label_count(indices, gt, gt_thresholds, fg_thresh)
+    pixel_label_count(gts, gt_threshs, fg_threshold)
     # gt_thresh 0.20: fg_pixel = 0.205596, bg_pixel = 0.794404
     # gt_thresh 0.25: fg_pixel = 0.204740, bg_pixel = 0.795260
     # gt_thresh 0.30: fg_pixel = 0.203802, bg_pixel = 0.796198
@@ -82,7 +78,7 @@ if __name__ == '__main__':
     # gt_thresh 0.40: fg_pixel = 0.202064, bg_pixel = 0.797936
     # gt_thresh 0.45: fg_pixel = 0.201271, bg_pixel = 0.798729
     # gt_thresh 0.50: fg_pixel = 0.200468, bg_pixel = 0.799532
-    fb_patch, bg_patch = patch_label_count(indices, gt, gt_thresholds, fg_thresh)
+    patch_label_count(gts, gt_threshs, fg_threshold)
     # gt_thresh 0.20: fg_patch = 0.263248, bg_patch = 0.736752
     # gt_thresh 0.25: fg_patch = 0.262400, bg_patch = 0.737600
     # gt_thresh 0.30: fg_patch = 0.261472, bg_patch = 0.738528

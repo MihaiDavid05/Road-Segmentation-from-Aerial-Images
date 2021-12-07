@@ -279,19 +279,6 @@ def predict(args, config, net, dataset, device):
 
         if len(proba_masks) > 1:
             proba_mask = overlay_masks(proba_masks, img, mode=config.patch_combine)
-
-            # proba_mask[0] = proba_mask[0] * 255
-            # proba_mask[0] = proba_mask[0].astype('uint8')
-            # kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (8, 8))
-            # proba_mask[0] = cv2.morphologyEx(proba_mask[0], cv2.MORPH_OPEN, kernel)
-            # proba_mask[0] = proba_mask[0] / 255
-            #
-            # proba_mask[1] = proba_mask[1] * 255
-            # proba_mask[1] = proba_mask[1].astype('uint8')
-            # kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (8, 8))
-            # proba_mask[1] = cv2.morphologyEx(proba_mask[1], cv2.MORPH_OPEN, kernel)
-            # proba_mask[1] = proba_mask[1] / 255
-
             one_hot_mask = F.one_hot(torch.tensor(proba_mask,
                                                   device='cpu').argmax(dim=0), net.n_classes).permute(2, 0, 1).numpy()
         else:

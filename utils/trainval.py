@@ -11,7 +11,7 @@ from PIL import Image
 from torch import optim
 from torch.utils.data import DataLoader, Subset
 from utils.loss import *
-from utils.helpers import submission_format_metric, mask_to_image, crop_image, overlay_masks
+from utils.helpers import submission_format_metric, mask_to_image, crop_image, overlay_masks, cross_entropy
 from torchvision import transforms
 from utils.mask_to_submission import masks_to_submission
 
@@ -142,7 +142,7 @@ def evaluate(config, net, dataloader, writer, epoch, device='cpu'):
     num_val_batches = len(dataloader)
     dice_score = 0
     f1_submission = 0
-
+    val_loss = 0
     for i, batch in tqdm(enumerate(dataloader)):
         # Get image and gt masks (both binary and probabilistic)
         image = batch['image']
@@ -174,6 +174,9 @@ def evaluate(config, net, dataloader, writer, epoch, device='cpu'):
                 # Compute dice score only for foreground
                 dice_score += multiclass_dice_coeff(pred_masks[:, 1:, ...], binary_mask[:, 1:, ...],
                                                     reduce_batch_first=False)
+                # Compute validation loss
+                # TODO: uncomment and test this
+                # val_loss += cross_entropy(pred_masks[:, 1:, ...], binary_mask[:, 1:, ...])
             f1_submission += submission_format_metric(foreground_proba_pred, raw_mask,
                                                       fore_thresh=config.foreground_thresh)
     net.train()

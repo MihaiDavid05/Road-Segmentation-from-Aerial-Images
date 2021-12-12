@@ -57,5 +57,3 @@ viz_path: "visualizations/"
 # Comments:
 
 # Pretrained weights from VGG13 used (changed loss to cross-entropy fom 9) -> score: 85.2 - submission score is 87.2 - TEST SCORE is 82.2  !!!
-
-# Same but taking into consideration onlt foreground in dice loss -> score:  - submission score is:  - TEST SCORE IS

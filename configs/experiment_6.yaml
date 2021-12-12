@@ -58,7 +58,7 @@ viz_path: "visualizations/"
 
 # Comments:
 
-# Changed ony epochs to 40 from 10 (in exp 5), score: 0.7916 - submission score is 82.21 - TEST SCORE is 77.5 !!!
+# Changed only epochs to 40 from 10 (in exp 5), score: 0.7916 - submission score is 82.21 - TEST SCORE is 77.5 !!!
 
 # Colab -> score: 80.89  - submission score is ?  - TEST SCORE is 78.7
 # Colab (with batch 8) -> score: 77.5 - submission score is 79.5 - TEST SCORE is 74.3 :((((((((((

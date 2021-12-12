@@ -72,16 +72,14 @@ if __name__ == '__main__':
     writer = SummaryWriter(log_dir=log_dir)
     train(net, dataset, config, writer, rng=rng, device=device)
 
-    # TODO: ideas:
+    # TODO: ideas
     # DONE: See differences in losses CE or FocalLoss ! - FOCAL WORSE
     # DONE: Augmentations - BETTER
     # DONE: Take maximum when combining patches - WORSE
     # DONE: Check fgr_thresh importance - 0.25 or 0.3
     # DONE: Post-process images with erosion and dilation (OPEN MORPH) - SAME
     # DONE: Test time augmentations - BETTER
+    # DONE: Weight decay !!!!
 
-    # Check optimizers (maybe Adam or AdamW) + Check learning rate schedulers (especially CLR) + weight decay
     # Check gt_thresh
-
-    # Look at dilated convolutions
     # Bad annotated GT: 31, 33, 35, 41, 65, 72, 76, 77, 78, 88 (good for showing shadow impact), 91, 96, 99, 100

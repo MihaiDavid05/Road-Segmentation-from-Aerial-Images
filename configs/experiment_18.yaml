@@ -37,10 +37,10 @@ num_workers: 2
 optim_type: 'rmsprop'
 learning_rate: 0.0001
 momentum: 0.9
-weight_decay: 0.0001
+weight_decay: 0.000001
 train_data_ratio: 0.8
 save_checkpoints_interval: 5
-patience: 2
+patience: 3
 loss_type: 'cross_entropy'
 
 # Test time augmentations
@@ -65,9 +65,14 @@ viz_path: "visualizations/"
 
 
 # Comments:
-# Same as 17 but with patience 3 and weight decay 0.00001
-  # THIS WAS NOT FULLY RUN, only epoch 35/100 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  # score is 93.32, submission score is nan, TEST SCORE IS 91.6 !!!!!
+# Same as 17 but with patience 3 and weight decay 0.00000001 (1e-8)
+  # score is 94.37, submission score is nan, TEST SCORE IS  91.4 !!!!!
 
-# Same as 17 but with patience 3 and weight decay 0.0001
+# Same as 17 but with patience 3 and weight decay 0.000001 (1e-6) - RUNNING
   # score is , submission score is nan, TEST SCORE IS  !!!!!
+
+# Same as 17 but with weight decay 0.00001 (1e-5) - 49/100
+  # score is 92.8, submission score is nan, TEST SCORE IS 91.4 !!!!!
+
+# Same as 17 but with weight decay 0.0001, 80 epochs (best at 73, - 28 training hours)
+  # score is 91.86, submission score is nan, TEST SCORE IS  91.4 !!!!!

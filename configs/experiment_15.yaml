@@ -75,5 +75,5 @@ viz_path: "visualizations/"
 # 0.30: 91 accuracy is 95.2
 # 0.35: 90.2
 
-# WITH MORPH OPEN - also 91
+# WITH MORPH OPEN - also 91 - DON'T CARE
 # TEST TIME AUG - 91.2

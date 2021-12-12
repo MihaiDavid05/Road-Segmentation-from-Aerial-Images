@@ -214,3 +214,7 @@ def load_pretrain_model(net, config):
     net.load_state_dict(new_state_dict)
 
     return net
+
+
+def cross_entropy(preds, gt):
+	return -sum([preds[i]*np.log(gt[i]) for i in range(len(preds))])

@@ -179,6 +179,5 @@ Prediction files were submitted to AICrowd platform. These are our best results:
 
 Visual predictions:
 
-![Prediction](docs/prediction_6.png)
-![Original image](docs/gt_6.png)
+![Prediction](doc/prediction_6.png) ![Original image](doc/gt_6.png)
 

@@ -5,6 +5,11 @@ from utils.datasets import BaseDataset
 def build_network(config):
     """
     Build netowrk according to type specified in config.
+    Args:
+        config: Config dictionary
+
+    Returns: Network
+
     """
     if config.model == 'unet':
         net = UNet(n_channels=config.channels, n_classes=config.classes, bilinear=config.bilinear,
@@ -17,6 +22,11 @@ def build_network(config):
 def build_dataset(config):
     """
     Build dataset according to configuration file.
+    Args:
+        config: Config dictionary
+
+    Returns: Network
+
     """
     train_dir = config.train_data
     gt_dir = config.gt_data

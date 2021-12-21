@@ -127,6 +127,7 @@ if __name__ == '__main__':
 
     # Iterate through types of augmentations specified in configuration file
     for i, img_filename in enumerate(train_images_names):
+        # Skip image if it is set for exclusion in config file
         if augmenter.cfg["skip_gt"] and i + 1 in augmenter.cfg["skip_gt"]:
             continue
         augmenter(img_filename, i)

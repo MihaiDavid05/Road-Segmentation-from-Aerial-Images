@@ -10,12 +10,12 @@ class UNet(nn.Module):
         self.dropout = dropout
         self.cut_last_convblock = cut_last_convblock
 
+        # Use bilinear upsampling or transposed convolutions
         factor = 2 if bilinear else 1
 
         self.inc = DoubleConv(n_channels, 64)
         self.down1 = Down(64, 128, self.dropout, first=True)
         self.down2 = Down(128, 256, self.dropout)
-        # self.down3 = Down(256, 512, self.dropout)
         if not cut_last_convblock:
             self.down3 = Down(256, 512, self.dropout)
             self.down4 = Down(512, 1024 // factor, self.dropout)

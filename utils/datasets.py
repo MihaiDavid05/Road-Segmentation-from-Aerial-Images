@@ -62,11 +62,12 @@ class BaseDataset(Dataset):
 
         # Read the image and mask
         gt_mask = mpimg.imread(gt_mask_file[0])
+        img = mpimg.imread(img_file[0])
         raw_mask = gt_mask.copy()
+        # Pad raw mask
         if self.pad_train is not None:
             raw_mask = np.pad(raw_mask, pad_width=((self.pad_train, self.pad_train), (self.pad_train, self.pad_train)),
                               mode='symmetric')
-        img = mpimg.imread(img_file[0])
 
         # Preprocess both image and mask
         img = self.preprocess(img, self.resize_test, pad_size=self.pad_train, is_mask=False)

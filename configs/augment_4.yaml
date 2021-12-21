@@ -32,6 +32,3 @@ log_dir_path: "logs/"
 
 # Visualization folder
 viz_path: "visualizations/"
-
-# Comments:
-# Config file for augmenting data

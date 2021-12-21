@@ -21,7 +21,7 @@ class FocalLoss(nn.Module):
             inp = inp.transpose(1, 2)  # N,C,H*W => N,H*W,C
             inp = inp.contiguous().view(-1, inp.size(2))  # N,H*W,C => N*H*W,C
         target = target.view(-1, 1)
-
+        # Compute logits
         logpt = F.log_softmax(inp)
         logpt = logpt.gather(1, target)
         logpt = logpt.view(-1)
@@ -54,7 +54,7 @@ def dice_coeff(inp, target, reduce_batch_first=False, epsilon=1e-6):
 
         return (2 * inter + epsilon) / (sets_sum + epsilon)
     else:
-        # compute and average metric for each batch element
+        # Compute and average metric for each batch element
         dice = 0
         for i in range(inp.shape[0]):
             dice += dice_coeff(inp[i, ...], target[i, ...])
@@ -72,6 +72,16 @@ def multiclass_dice_coeff(inp, target, reduce_batch_first=False, epsilon=1e-6):
 
 
 def dice_loss(inp, target, multiclass=False):
+    """
+    Compute dice loss
+    Args:
+        inp: Prediction
+        target: Ground-truth
+        multiclass: Whether its a multi class problem or not
+
+    Returns: Dice score
+
+    """
     # Dice loss (objective to minimize) between 0 and 1
     assert inp.size() == target.size()
     fn = multiclass_dice_coeff if multiclass else dice_coeff

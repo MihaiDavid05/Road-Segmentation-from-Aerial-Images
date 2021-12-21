@@ -65,24 +65,27 @@ def patch_label_count(gt, gt_thresholds, fg_thresh):
 
 
 if __name__ == '__main__':
-    indices = np.arange(1, 101, 1)
-    gts = [mpimg.imread(glob.glob("data/training/groundtruth/*" + str(idx) + '.png')[0]) for idx in indices]
-    gt_threshs = np.arange(0.2, 0.55, 0.05)
-    fg_threshold = 0.25
+    # indices = np.arange(1, 101, 1)
+    # gts = [mpimg.imread(glob.glob("data/training/groundtruth/*" + str(idx) + '.png')[0]) for idx in indices]
+    # gt_threshs = np.arange(0.2, 0.55, 0.05)
+    # fg_threshold = 0.25
+    #
+    # pixel_label_count(gts, gt_threshs, fg_threshold)
+    # # gt_thresh 0.20: fg_pixel = 0.205596, bg_pixel = 0.794404
+    # # gt_thresh 0.25: fg_pixel = 0.204740, bg_pixel = 0.795260
+    # # gt_thresh 0.30: fg_pixel = 0.203802, bg_pixel = 0.796198
+    # # gt_thresh 0.35: fg_pixel = 0.202915, bg_pixel = 0.797085
+    # # gt_thresh 0.40: fg_pixel = 0.202064, bg_pixel = 0.797936
+    # # gt_thresh 0.45: fg_pixel = 0.201271, bg_pixel = 0.798729
+    # # gt_thresh 0.50: fg_pixel = 0.200468, bg_pixel = 0.799532
+    # patch_label_count(gts, gt_threshs, fg_threshold)
+    # # gt_thresh 0.20: fg_patch = 0.263248, bg_patch = 0.736752
+    # # gt_thresh 0.25: fg_patch = 0.262400, bg_patch = 0.737600
+    # # gt_thresh 0.30: fg_patch = 0.261472, bg_patch = 0.738528
+    # # gt_thresh 0.35: fg_patch = 0.260720, bg_patch = 0.739280
+    # # gt_thresh 0.40: fg_patch = 0.259872, bg_patch = 0.740128
+    # # gt_thresh 0.45: fg_patch = 0.259184, bg_patch = 0.740816
+    # # gt_thresh 0.50: fg_patch = 0.258512, bg_patch = 0.741488
 
-    pixel_label_count(gts, gt_threshs, fg_threshold)
-    # gt_thresh 0.20: fg_pixel = 0.205596, bg_pixel = 0.794404
-    # gt_thresh 0.25: fg_pixel = 0.204740, bg_pixel = 0.795260
-    # gt_thresh 0.30: fg_pixel = 0.203802, bg_pixel = 0.796198
-    # gt_thresh 0.35: fg_pixel = 0.202915, bg_pixel = 0.797085
-    # gt_thresh 0.40: fg_pixel = 0.202064, bg_pixel = 0.797936
-    # gt_thresh 0.45: fg_pixel = 0.201271, bg_pixel = 0.798729
-    # gt_thresh 0.50: fg_pixel = 0.200468, bg_pixel = 0.799532
-    patch_label_count(gts, gt_threshs, fg_threshold)
-    # gt_thresh 0.20: fg_patch = 0.263248, bg_patch = 0.736752
-    # gt_thresh 0.25: fg_patch = 0.262400, bg_patch = 0.737600
-    # gt_thresh 0.30: fg_patch = 0.261472, bg_patch = 0.738528
-    # gt_thresh 0.35: fg_patch = 0.260720, bg_patch = 0.739280
-    # gt_thresh 0.40: fg_patch = 0.259872, bg_patch = 0.740128
-    # gt_thresh 0.45: fg_patch = 0.259184, bg_patch = 0.740816
-    # gt_thresh 0.50: fg_patch = 0.258512, bg_patch = 0.741488
+    x, y = 3
+    print(x, y)

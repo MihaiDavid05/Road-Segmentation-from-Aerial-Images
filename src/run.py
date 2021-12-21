@@ -10,6 +10,8 @@ from torch.utils.tensorboard import SummaryWriter
 from torchsummary import summary
 from utils.helpers import load_pretrain_model
 import numpy as np
+
+# Setting seeds
 SEED = 45
 torch.manual_seed(SEED)
 torch.backends.cudnn.deterministic = True
@@ -71,15 +73,3 @@ if __name__ == '__main__':
     # Train network
     writer = SummaryWriter(log_dir=log_dir)
     train(net, dataset, config, writer, rng=rng, device=device)
-
-    # TODO: ideas
-    # DONE: See differences in losses CE or FocalLoss ! - FOCAL WORSE
-    # DONE: Augmentations - BETTER
-    # DONE: Take maximum when combining patches - WORSE
-    # DONE: Check fgr_thresh importance - 0.25 or 0.3
-    # DONE: Post-process images with erosion and dilation (OPEN MORPH) - SAME
-    # DONE: Test time augmentations - BETTER
-    # DONE: Weight decay !!!!
-
-    # Check gt_thresh
-    # Bad annotated GT: 31, 33, 35, 41, 65, 72, 76, 77, 78, 88 (good for showing shadow impact), 91, 96, 99, 100

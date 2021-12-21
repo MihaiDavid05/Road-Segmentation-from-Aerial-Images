@@ -6,7 +6,6 @@ import imutils
 import datetime
 import numpy as np
 from utils.config import read_config
-import matplotlib.image as mpimg
 
 
 class Augmenter:
@@ -94,7 +93,8 @@ def get_args():
     Parse command line arguments.
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument('config_filename', type=str, help='Configuration filename that you want to use during the run.')
+    parser.add_argument('config_filename', type=str,
+                        help='Augmentation configuration filename that you want to use during the run.')
 
     return parser.parse_args()
 
@@ -127,4 +127,6 @@ if __name__ == '__main__':
 
     # Iterate through types of augmentations specified in configuration file
     for i, img_filename in enumerate(train_images_names):
+        if augmenter.cfg["skip_gt"] and i + 1 in augmenter.cfg["skip_gt"]:
+            continue
         augmenter(img_filename, i)

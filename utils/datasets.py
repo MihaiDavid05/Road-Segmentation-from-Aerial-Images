@@ -43,9 +43,6 @@ class BaseDataset(Dataset):
             else:
                 img_ndarray = np.where(img_ndarray > gt_thresh, 1, 0)
 
-        if is_mask and (np.all(img == 0) or np.all(img == 1)):
-            print("Useless image!")
-
         if not is_test and pad_size is not None:
             if is_mask:
                 img_ndarray = np.pad(img_ndarray, pad_width=((pad_size, pad_size), (pad_size, pad_size)),

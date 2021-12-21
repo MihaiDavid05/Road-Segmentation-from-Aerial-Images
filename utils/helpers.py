@@ -192,10 +192,25 @@ def make_img_overlay(img, predicted_img):
 
 def load_pretrain_model(net, config):
     pretrained_vgg_params = torch.load(config.pretrain)
-    good_vgg_keys = list(key for key in pretrained_vgg_params.keys() if key.startswith('features'))
     net_params = net.state_dict()
-    good_net_keys = list(key for key in net_params.keys() if (key.startswith('inc') or key.startswith('down'))
-                         and 'num_batches_tracked' not in key)
+    # config.cut_last_convblock
+
+    if config.bilinear:
+        if config.cut_last_convblock:
+            good_vgg_keys = list(key for key in pretrained_vgg_params.keys() if key.startswith('features') and
+                                 int(key.split('.')[1]) not in [21, 22, 24, 25, 28, 29, 31, 32])
+            good_net_keys = list(key for key in net_params.keys() if (key.startswith('inc') or key.startswith('down'))
+                                 and 'num_batches_tracked' not in key and 'down4' not in key and 'down3' not in key)
+        else:
+            good_vgg_keys = list(key for key in pretrained_vgg_params.keys() if key.startswith('features'))
+            good_net_keys = list(key for key in net_params.keys() if (key.startswith('inc') or key.startswith('down'))
+                                 and 'num_batches_tracked' not in key)
+    if not config.bilinear:
+        good_vgg_keys = list(key for key in pretrained_vgg_params.keys() if key.startswith('features') and
+                             int(key.split('.')[1]) not in [28, 29, 31, 32])
+        good_net_keys = list(key for key in net_params.keys() if (key.startswith('inc') or key.startswith('down'))
+                             and 'num_batches_tracked' not in key and 'down4' not in key)
+
     key_mapping = dict(zip(good_net_keys, good_vgg_keys))
     new_state_dict = {}
     # Load params and freeze layers
@@ -217,4 +232,6 @@ def load_pretrain_model(net, config):
 
 
 def cross_entropy(preds, gt):
-	return -sum([preds[i]*np.log(gt[i]) for i in range(len(preds))])
+    preds = preds.squeeze().detach().cpu().numpy()
+    gt = gt.squeeze().detach().cpu().numpy()
+    return -np.sum(preds * np.log(gt + 0.000000000000001))

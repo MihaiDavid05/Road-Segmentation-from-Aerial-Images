@@ -12,7 +12,7 @@ pretrain: 'pretrained_weights/vgg13_bn-abd245e5.pth'
 
 # Proccessing thresholds
 gt_thresh: 0.2
-foreground_thresh: 0.26
+foreground_thresh: 0.25
 
 # Model parameters
 model: 'unet'
@@ -36,7 +36,7 @@ epochs: 100
 batch_size: 2
 num_workers: 2
 # rmsprop or adam
-optim_type: 'rmsprop'
+optim_type: 'adam'
 learning_rate: 0.0001
 momentum: 0.9
 weight_decay: 0.000001
@@ -67,25 +67,9 @@ viz_path: "visualizations/"
 
 
 # Comments:
-# Same as 17 but with patience 3 and weight decay 0.00000001 (1e-8)
-  # score is 94.37, submission score is nan, TEST SCORE IS  91.4 !!!!!
-
-# Same as 17 but with patience 3 and weight decay 0.000001 (1e-6) - RUNNING
-  # score is , submission score is nan, TEST SCORE IS  91.3 or 91.4!!!!!
-  # epoch 22 - 91.3 even if 3 epochs with no higher validation score, nor lower loss
-  # epoch 23 - 91.2 :((
-  # epoch 37 - 91.4
-  # epoch 55 - 91.5
-  # also tried with 30, 31 but no higher score
-
-# Same as 17 but with weight decay 0.00001 (1e-5) - 49/100
-  # score is 92.8, submission score is nan, TEST SCORE IS 91.4 !!!!!
-
-# Same as 17 but with weight decay 0.0001, 80 epochs (best at 73, - 28 training hours)
-  # score is 91.86, submission score is nan, TEST SCORE IS  91.4 !!!!!
-
-
-# fg thresh 0.2 - 91.1
-# fg thresh 0.25 - 91.7
-# fg thresh 0.26 - 91.6
-# fg thresh 0.3  - 91.3
+# Same as 18 but Adam used
+  # epoch 31 - submission score 93.96, TEST SCORE 91.3!!!
+  # epoch 37 - submission score 94.19, TEST SCORE 91.5!!!
+  # epoch 38 - submission score 94.47, TEST SCORE 91.6!!!
+  # epoch 39 - submission score 94.29, TEST SCORE 91.4!!!
+  # epoch 54 - submission score , TEST SCORE 91.4 !!!

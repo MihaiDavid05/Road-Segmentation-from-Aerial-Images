@@ -3,7 +3,6 @@ import os
 from tqdm import tqdm
 import logging
 import ttach as tta
-import cv2
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
@@ -58,7 +57,7 @@ def train(net, dataset, config, writer, rng, device='cpu'):
     if config.optim_type == 'rmsprop':
         optimizer = optim.RMSprop(net.parameters(), lr=learning_rate, weight_decay=weight_decay, momentum=momentum)
     else:
-        optimizer = optim.Adam(net.parameters(), lr=0.0001, betas=(0.9, 0.999), eps=1e-08, weight_decay=0, amsgrad=False)
+        optimizer = optim.Adam(net.parameters(), lr=0.0001, betas=(0.9, 0.999), eps=1e-08, weight_decay=0.000001, amsgrad=False)
 
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'max', patience=patience)
     if config.loss_type == 'focal':
@@ -88,31 +87,37 @@ def train(net, dataset, config, writer, rng, device='cpu'):
             loss += dice_loss(F.softmax(pred_masks, dim=1).float(), F.one_hot(binary_mask, net.n_classes).
                               permute(0, 3, 1, 2).float(), multiclass=True)
             # Write summaries to TensorBoard
-            writer.add_scalar("Loss/train", loss, global_step)
             writer.add_scalar("Lr", optimizer.param_groups[0]['lr'], global_step)
             # Perform backward pass
             loss.backward()
             optimizer.step()
             # Update global step value and epoch loss
             global_step += 1
+            # Update epoch loss
             epoch_loss += loss.item()
-            # Write infos to log files
-            logging.info(f'Epoch: {epoch + 1} -> global_step: {global_step} -> train_loss: {loss.item()}')
-
+        epoch_loss = epoch_loss / len(train_loader)
+        # Write info to log files
+        logging.info(f'Epoch: {epoch + 1} -> train_loss: {epoch_loss}')
         # Evaluate model after each epoch
         logging.info(f'Validation started !')
-        val_dice_score, f1_submission = evaluate(config, net, val_loader, writer, epoch, device)
-
+        val_dice_score, f1_submission, val_loss = evaluate(config, net, val_loader, writer, epoch, criterion, device)
+        # Plot val loss
+        writer.add_scalars('Loss', {'train': epoch_loss, 'val': val_loss}, global_step)
         # Recompute learning rate
         scheduler.step(val_dice_score)
-
         # Log information to logger and TensorBoard
         logging.info('Validation Dice score is: {}'.format(val_dice_score))
         logging.info('Submission score is: {}'.format(f1_submission))
         writer.add_scalar("Dice_Score/val", val_dice_score, global_step)
         writer.add_scalar("Submission_Score/val", f1_submission, global_step)
 
-        # Save models
+        # Save checkpoint after each epoch
+        checkpoint_dir = checkpoints_path + experiment_name
+        if not os.path.exists(checkpoint_dir):
+            os.makedirs(checkpoint_dir)
+        torch.save(net.state_dict(), checkpoint_dir + '/checkpoint_' + str(epoch) + '.pth')
+
+        # Save best model (highest validation score)
         if val_dice_score > max_val_score:
             max_val_score = val_dice_score
             print("Current maximum validation score is: {}".format(max_val_score))
@@ -124,7 +129,7 @@ def train(net, dataset, config, writer, rng, device='cpu'):
             logging.info(f'Checkpoint {epoch + 1} saved!')
 
 
-def evaluate(config, net, dataloader, writer, epoch, device='cpu'):
+def evaluate(config, net, dataloader, writer, epoch, criterion, device='cpu'):
     """
     Run evaluation on the entire dataset.
     Args:
@@ -133,6 +138,7 @@ def evaluate(config, net, dataloader, writer, epoch, device='cpu'):
         dataloader: Validation dataloader.
         writer: Summary writer object for TensorBoard logging.
         epoch: Number of epoch that training has reached.
+        criterion: Loss criterion.
         device: Can be 'cpu' or 'cuda:0' - depending if you run on CPU or GPU.
 
     Returns: Validation scores (dice score and patches classification accuracy)
@@ -153,7 +159,7 @@ def evaluate(config, net, dataloader, writer, epoch, device='cpu'):
         # Move tensors to specific device
         image = image.to(device=device, dtype=torch.float32)
         binary_mask = binary_mask.to(device=device, dtype=torch.long)
-        binary_mask = F.one_hot(binary_mask, net.n_classes).permute(0, 3, 1, 2).float()
+        binary_mask_one_hot = F.one_hot(binary_mask, net.n_classes).permute(0, 3, 1, 2).float()
         raw_mask = raw_mask.to(device=device, dtype=torch.float32)
 
         with torch.no_grad():
@@ -162,26 +168,30 @@ def evaluate(config, net, dataloader, writer, epoch, device='cpu'):
             if net.n_classes == 1:
                 pred_masks = (F.sigmoid(pred_masks) > 0.5).float()
                 # Compute dice score
-                dice_score += dice_coeff(pred_masks, binary_mask, reduce_batch_first=False)
+                dice_score += dice_coeff(pred_masks, binary_mask_one_hot, reduce_batch_first=False)
             else:
                 # Log prediction
                 foreground_proba_pred = torch.softmax(pred_masks, dim=1)[0][1]
                 writer.add_image("Pred_masks_{}".format(epoch), torch.unsqueeze(torch.softmax(pred_masks, dim=1).
                                                                                 argmax(dim=1)[0],
                                                                                 dim=0).float().detach().cpu(), i)
+                # Compute validation loss
+                loss = criterion(pred_masks, binary_mask)
+                loss += dice_loss(F.softmax(pred_masks, dim=1).float(), F.one_hot(binary_mask, net.n_classes).
+                                  permute(0, 3, 1, 2).float(), multiclass=True)
+                val_loss += loss.item()
                 # Compute one hot vectors
                 pred_masks = F.one_hot(pred_masks.argmax(dim=1), net.n_classes).permute(0, 3, 1, 2).float()
                 # Compute dice score only for foreground
-                dice_score += multiclass_dice_coeff(pred_masks[:, 1:, ...], binary_mask[:, 1:, ...],
+                dice_score += multiclass_dice_coeff(pred_masks[:, 1:, ...], binary_mask_one_hot[:, 1:, ...],
                                                     reduce_batch_first=False)
-                # Compute validation loss
-                # TODO: uncomment and test this
-                # val_loss += cross_entropy(pred_masks[:, 1:, ...], binary_mask[:, 1:, ...])
+            # Compute submission score
             f1_submission += submission_format_metric(foreground_proba_pred, raw_mask,
                                                       fore_thresh=config.foreground_thresh)
     net.train()
-
-    return dice_score / num_val_batches, np.nan if np.isnan(f1_submission) else f1_submission / num_val_batches
+    val_loss = val_loss / len(dataloader)
+    logging.info(f'Epoch: {epoch + 1} -> val_loss: {val_loss}')
+    return dice_score / num_val_batches, np.nan if np.isnan(f1_submission) else f1_submission / num_val_batches, val_loss
 
 
 def predict_image(net,
@@ -254,7 +264,8 @@ def predict(args, config, net, dataset, device):
     viz_folder = config.viz_path + config.name
     if not os.path.exists(viz_folder):
         os.mkdir(viz_folder)
-    submission_path = config.output_path + "submission_" + config.name + '_' + config.patch_combine + '_patch_ttime_aug' + '.csv'
+    # TODO: Here checkpoint
+    submission_path = config.output_path + "submission_" + config.name + '_' + config.patch_combine + '_patch_ttime_aug_checkpoint_BEST_026' + '.csv'
     preds = []
     for i, folder in tqdm(enumerate(test_folders)):
         filename = os.listdir(config.test_data + folder)[0]
@@ -302,9 +313,3 @@ def predict(args, config, net, dataset, device):
 
     # Convert to submission format and save to csv
     masks_to_submission(submission_path, config.foreground_thresh, preds)
-
-    # fgr_threshs = [0.15, 0.20, 0.25, 0.30, 0.35]
-    # for t in fgr_threshs:
-    #     submission_path = config.output_path + "submission_" + config.name + '_model14_avg_patch_' + str(t*100) + '.csv'
-    #     masks_to_submission(submission_path, t, preds)
-

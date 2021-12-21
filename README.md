@@ -27,7 +27,7 @@ For PyTorch and torchvision installation use the following command:
 ```bash
 conda install pytorch==1.1.0 torchvision==0.3.0 cudatoolkit=9.0 -c pytorch
 ```
-NOTE: Check your CUDA + CuDNN version and PyTorch compatibility.
+*NOTE*: Check your CUDA + CuDNN version and PyTorch compatibility.
 
 For the rest of the libraries use the next command:
 ```bash
@@ -104,9 +104,21 @@ In this way, the folder structure will be changed in the following way:
 Check `config` folder for different configs for data augmentation and training/val/predict of the network.
 Configs follow a YAML format. We used them in order to keep track of our experiments with different parameters.
  
-A `augment_*` configuration files are used for data augmentation.
+A `augment_*` configuration files are used for data augmentation. When creating an augmentation config file,
+set these 2 parameters in this way:
+```
+train_data: "data/training/images_<augmentation_config_filename>/"
+gt_data: "data/training/groundtruth_<augmentation_config_filename>/"
+```
 
 A `experiment_*` configuration files are used for training/val/predict.
+
+When creating an experiment config file, set these 3 parameters in this way:
+```
+augmentation_type: '<augmentation_config_filename>'
+train_data: "data/training/images_<augmentation_config_filename>/"
+gt_data: "data/training/groundtruth_<augmentation_config_filename>/"
+```
 
 ## Running experiments
 ### Training and validation
@@ -148,6 +160,11 @@ to check Tensorboard logs on localhost:
 ```
 tensorboard --logdir=logs/<config_filename>
 ```
+## Google Colab Notebook
+If you cannot get the right CUDA and PyTorch versions locally, or if you have any other compatibility issues,
+we also provide a Colab notebook
+where the environment is set exactly as on our local machine, for reproducibility. You can find
+it under `project_notebook.ipynb`. To run it, you must upload the code to your Google Drive account.
 
 ## Results
 
@@ -160,4 +177,8 @@ Prediction files were submitted to AICrowd platform. These are our best results:
 | ----------- | ----------- |
 | 91.7        | 95.5        |
 
-TODO: Insert pictures and move to doc folder also
+Visual predictions:
+
+![Prediction](docs/prediction_6.png)
+![Original image](docs/gt_6.png)
+

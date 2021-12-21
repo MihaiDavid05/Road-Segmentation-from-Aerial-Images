@@ -20,7 +20,7 @@ Tested configurations:
 
 All experiments were run on an `NVIDIA GTX 950M` (4 GB RAM).
 
-###1. Libraries installation
+### 1.Libraries installation
 *NOTE*: You should have Anaconda installed.
 
 For PyTorch and torchvision installation use the following command:
@@ -34,7 +34,7 @@ For the rest of the libraries use the next command:
 pip install numpy imutils matplotlib opencv-python Pillow PyYAML tensorboard 
 ```
 
-###2. Set PYTHONPATH
+### 2.Set PYTHONPATH
 Please add the project root folder to `$PYTHONPATH` using following command:
 ```bash
 export PYTHONPATH=$PYTHONPATH:<path_to_project_folder>

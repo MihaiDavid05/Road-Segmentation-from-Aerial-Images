@@ -16,7 +16,7 @@ in the upsampling branch and a pretrained VGG13 network in the downsampling bran
 * split test image in 4 patches of 400x400 pixels and average predictions to get 608x608 original test image
 * test time augmentations
 
-## Environment setup
+## :wrench: Environment setup
 For our experiments we used PyCharm IDE.
 Tested configurations: 
 
@@ -75,11 +75,11 @@ Targeted folder structure:
 
 ```
 
-## Pretrained weights
+## :muscle: Pretrained weights
 We use VGG13 pretrained on ImageNet weights. You can download them at [this](https://download.pytorch.org/models/vgg13_bn-abd245e5.pth) link.
 Please place them under `pretrained_weights` folder. 
 
-## Data augmentations
+## :brain: Data augmentations
 We use offline data augmentation. Therefore, before starting the training process,
 you must run the following command in order to augment the data:
 ```bash
@@ -108,7 +108,7 @@ In this way, the folder structure will be changed in the following way:
        ...
 ```
 
-## Configs
+## :scroll: Configs
 Check `config` folder for different configs for data augmentation and training/val/predict of the network.
 Configs follow a YAML format. We used them in order to keep track of our experiments with different parameters.
  
@@ -128,7 +128,7 @@ train_data: "data/training/images_<augmentation_config_filename>/"
 gt_data: "data/training/groundtruth_<augmentation_config_filename>/"
 ```
 
-## Running experiments
+## :running: Running experiments
 ### Training and validation
 
 For training and validation run the following commands:
@@ -161,14 +161,14 @@ cd src
 python predict.py experiment_BEST experiment_BEST
 ``` 
 
-### Tensorboard
+### :chart_with_upwards_trend: Tensorboard
 Beside local log files, we use Tensorboard to log our metrics and losses. After each training,
 Tensorboard event files will be created under `logs/<config_filename>`. You can run the following command
 to check Tensorboard logs on localhost:
 ```
 tensorboard --logdir=logs/<config_filename>
 ```
-## Google Colab Notebook
+## :notebook: Google Colab Notebook
 If you cannot get the right CUDA and PyTorch versions locally, or if you have any other compatibility issues,
 we also provide a Colab notebook
 where the environment is set exactly as on our local machine, for reproducibility. 
@@ -176,7 +176,7 @@ However, you must first generate the augmented dataset, locally. You can find
 it under `EPFL_ML_project_2.ipynb`. To run the notebook, you must upload the code to your Google Drive account and rename
 your PROJECT_ROOT_FOLDER to `EPFL_ML_project_2`.
 
-## Results
+## :trophy: Results
 TODO: best checkpoint as experiment_BEST zip file and add readme to doc folder, add icons
 
 All submissions will be stored under `results` folder in the file `submission_<config_filename>_avg_patch_ttime_aug.csv`.
@@ -193,7 +193,7 @@ Visual predictions:
 
 ![Prediction](doc/prediction.png)
 
-## References
+## :eyes: References
 ```
 @misc{milesial:2021,
   Author = {milesial},

@@ -48,7 +48,7 @@ Please add the project root folder to `$PYTHONPATH` using following command:
 export PYTHONPATH=$PYTHONPATH:<path_to_project_folder>
 ```
  
-## Data and Folders Structure
+## :file_folder: Data and Folders Structure
 Please download the data at this [link](https://www.aicrowd.com/challenges/epfl-ml-road-segmentation/dataset_files?unique_download_uri=2869&challenge_id=68).
 Unzip the `training.zip` and `test_set_images.zip` under the `data` folder.
 

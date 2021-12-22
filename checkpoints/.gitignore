@@ -1,4 +1,4 @@
 *
 */
 !.gitignore
-!experiment_BEST/
+!experiment_BEST/checkpoint_BEST.pth

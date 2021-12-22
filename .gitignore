@@ -3,4 +3,3 @@
 
 # Files
 *.pth
-!checkpoints/experiment_BEST/checkpoint_BEST.pth

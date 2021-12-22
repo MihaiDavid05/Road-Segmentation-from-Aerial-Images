@@ -4,9 +4,8 @@ Implementation by team CTM.
 
 ## :mag_right: Abstract
 This repository contains the code for the Road Segmentation challenge on AICrowd. 
-This challenge is a special case of binary semantic segmentation. We must first predict the pixel-wise class 
-(background or road) and then predict the class of each 16x16 patch from a test image, based on an empirical threshold representing
-the percentage of segmented road pixels in a patch. 
+This challenge is a case of binary semantic segmentation. We must first predict the pixel-wise class 
+(background or road) and then predict the class of each 16x16 patch from a test image, by thresholding on the average number of road pixels. 
 
 Key features of our approach:
 * data augmentations

@@ -177,7 +177,7 @@ it under `EPFL_ML_project_2.ipynb`. To run the notebook, you must upload the cod
 your PROJECT_ROOT_FOLDER to `EPFL_ML_project_2`.
 
 ## :trophy: Results
-TODO: best checkpoint as experiment_BEST zip file + experiment_BEST config + submission BEST and add readme to doc folder
+TODO: best checkpoint as experiment_BEST zip file unzip + experiment_BEST config + submission BEST + add readme to doc folder
 
 All submissions will be stored under `results` folder in the file `submission_<config_filename>_avg_patch_ttime_aug.csv`.
 
@@ -191,7 +191,7 @@ These were our best results:
 
 Visual predictions:
 
-![Prediction](doc/prediction.png)
+![Prediction](doc/overlap_6.png)
 
 ## :eyes: References
 ```

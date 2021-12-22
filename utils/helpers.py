@@ -176,6 +176,31 @@ def load_pretrain_model(net, config):
     return net
 
 
+def make_img_overlay(img, predicted_img):
+    """
+    Overlap predicted mask and original image.
+    Args:
+        img: Original image
+        predicted_img: Mask
+
+    Returns: New image with overlapped mask and image
+
+    """
+    w = img.shape[0]
+    h = img.shape[1]
+    color_mask = np.zeros((w, h, 3), dtype=np.uint8)
+    color_mask[:, :, 0] = predicted_img*255
+
+    rimg = img - np.min(img)
+    img8 = (rimg / np.max(rimg) * 255).round().astype(np.uint8)
+
+    background = Image.fromarray(img8, 'RGB').convert("RGBA")
+    overlay = Image.fromarray(color_mask, 'RGB').convert("RGBA")
+    new_img = Image.blend(background, overlay, 0.2)
+
+    return new_img
+
+
 def setup(args, log_name):
     """
     Args:

@@ -178,9 +178,9 @@ your PROJECT_ROOT_FOLDER to `EPFL_ML_project_2`.
 ## Results
 TODO: best checkpoint as experiment_BEST zip file and add readme to doc folder
 
-All submissions will be stored under `results` folder in the form `submission_<config_filename>.csv`.
+All submissions will be stored under `results` folder in the form `submission_<config_filename>_avg_patch_ttime_aug.csv`.
 
-The `.csv` uploaded on AICrowd platform can be found under `results/submission_BEST.csv`.
+The `.csv` uploaded on AICrowd platform can be found under `results/submission_experiment_BEST_avg_patch_ttime_aug.csv`.
 
 These were our best results:
 
@@ -192,6 +192,24 @@ Visual predictions:
 
 ![Prediction](doc/prediction.png)
 
-## Citations
-TODO: Unet si FocalLoss
+## References
+```
+@misc{milesial:2021,
+  Author = {milesial},
+  Title = {Pytorch-UNet},
+  Year = {2021},
+  Publisher = {GitHub},
+  Journal = {GitHub repository},
+  Howpublished = {\url{https://github.com/milesial/Pytorch-UNet}}
+}
+@misc{mbsariyildiz:2019,
+  Author = {Mert Bulent Sariyildiz},
+  Title = {focal-loss.pytorch},
+  Year = {2019},
+  Publisher = {GitHub},
+  Journal = {GitHub repository},
+  Howpublished = {\url{https://github.com/mbsariyildiz/focal-loss.pytorch}}
+}
+
+```
 

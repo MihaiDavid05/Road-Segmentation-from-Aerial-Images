@@ -1,10 +1,7 @@
-import os
 import argparse
-import logging
-import datetime
-from utils.config import *
 from utils.builders import *
 from utils.trainval import predict
+from utils.helpers import setup
 
 SEED = 45
 torch.manual_seed(SEED)
@@ -27,26 +24,9 @@ def get_args():
 if __name__ == '__main__':
     # Get command line arguments and configuration dictionary
     args = get_args()
-    config_path = 'configs/' + args.config_filename + '.yaml'
-    config = read_config(config_path)
-    config = DotConfig(config)
-    config.name = args.config_filename
 
-    # Set file for logging
-    log_filename = config.name + '.log'
-    log_dir = config.log_dir_path + config.name
-    if not os.path.exists(log_dir):
-        os.mkdir(log_dir)
-    log_filename = log_dir + '/predict_log.log'
-    if os.path.exists(log_filename):
-        now = datetime.datetime.now()
-        log_filename = log_dir + '/predict_log_' + str(now.minute) + '_' + str(now.second) + '.log'
-    logging.basicConfig(filename=log_filename, level=logging.INFO, format='%(levelname)s: %(message)s')
-    logging.info(f'Configuration file used is <{config.name}>\n')
-
-    # Check for cuda availability
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    logging.info(f'Device is {device}')
+    # Get configuration and device and set logging
+    config, device, _ = setup(args, 'predict_log')
 
     # Build network according to config file and send it to device
     net = build_network(config)
@@ -56,9 +36,8 @@ if __name__ == '__main__':
     dataset = build_dataset(config)
 
     # Load weights
-    # TODO: Here
-    # checkpoint_path = 'checkpoints/' + args.model + '/checkpoint_55.pth'
-    checkpoint_path = 'src/checkpoint_best.pth'
+    # TODO: Here BEST in loc de 30
+    checkpoint_path = 'checkpoints/' + args.model + '/checkpoint_30.pth'
     net.load_state_dict(torch.load(checkpoint_path, map_location=device))
 
     # Generate prediction

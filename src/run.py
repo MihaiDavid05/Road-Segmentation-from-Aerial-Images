@@ -1,14 +1,10 @@
-import os
-import torch
 import argparse
 import logging
-import datetime
-from utils.config import *
 from utils.builders import *
 from utils.trainval import train
 from torch.utils.tensorboard import SummaryWriter
 from torchsummary import summary
-from utils.helpers import load_pretrain_model
+from utils.helpers import load_pretrain_model, setup
 import numpy as np
 
 # Setting seeds
@@ -34,26 +30,9 @@ if __name__ == '__main__':
 
     # Get command line arguments and configuration dictionary
     args = get_args()
-    config_path = 'configs/' + args.config_filename + '.yaml'
-    config = read_config(config_path)
-    config = DotConfig(config)
-    config.name = args.config_filename
 
-    # Set file for logging
-    log_filename = config.name + '.log'
-    log_dir = config.log_dir_path + config.name
-    if not os.path.exists(log_dir):
-        os.mkdir(log_dir)
-    log_filename = log_dir + '/log.log'
-    if os.path.exists(log_filename):
-        now = datetime.datetime.now()
-        log_filename = log_dir + '/log_' + str(now.minute) + '_' + str(now.second) + '.log'
-    logging.basicConfig(filename=log_filename, level=logging.INFO, format='%(levelname)s: %(message)s')
-    logging.info(f'Configuration file used is <{config.name}>\n')
-
-    # Check for cuda availability
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    logging.info(f'Device is {device}')
+    # Get configuration and device and set logging
+    config, device, log_dir = setup(args, 'log')
 
     # Build network according to config file and send it to device
     net = build_network(config)

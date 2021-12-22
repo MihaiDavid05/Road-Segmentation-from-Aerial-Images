@@ -1,4 +1,8 @@
 import torch
+import logging
+import datetime
+from utils.config import *
+import os
 import numpy as np
 from PIL import Image
 
@@ -170,3 +174,35 @@ def load_pretrain_model(net, config):
     net.load_state_dict(new_state_dict)
 
     return net
+
+
+def setup(args, log_name):
+    """
+    Args:
+        args: Command line arguments
+        log_name: Base name used for logging files
+
+    Returns: Configuration dictionary, device and logging directory
+
+    """
+    config_path = 'configs/' + args.config_filename + '.yaml'
+    config = read_config(config_path)
+    config = DotConfig(config)
+    config.name = args.config_filename
+
+    # Set file for logging
+    log_dir = config.log_dir_path + config.name
+    if not os.path.exists(log_dir):
+        os.mkdir(log_dir)
+    log_filename = log_dir + '/' + log_name + '.log'
+    if os.path.exists(log_filename):
+        now = datetime.datetime.now()
+        log_filename = log_dir + '/' + log_name + '_' + str(now.minute) + '_' + str(now.second) + '.log'
+    logging.basicConfig(filename=log_filename, level=logging.INFO, format='%(levelname)s: %(message)s')
+    logging.info(f'Configuration file used is <{config.name}>\n')
+
+    # Check for cuda availability
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    logging.info(f'Device is {device}')
+
+    return config, device, log_dir

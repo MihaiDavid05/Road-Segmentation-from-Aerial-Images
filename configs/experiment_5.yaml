@@ -63,4 +63,3 @@ viz_path: "visualizations/"
   # + with epochs 23/40: 0.7681 - NOT FINISHED (KICKED ME OUT)
 
 # Local max score: 0.7477 - submission score is 0.8054 -
-# TODO: predict and submit results

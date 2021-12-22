@@ -122,7 +122,7 @@ def train(net, dataset, config, writer, rng, device='cpu'):
         if val_dice_score > max_val_score:
             max_val_score = val_dice_score
             print("Current maximum validation score is: {}".format(max_val_score))
-            torch.save(net.state_dict(), checkpoint_dir + '/checkpoint_best.pth')
+            torch.save(net.state_dict(), checkpoint_dir + '/checkpoint_BEST.pth')
             logging.info(f'Checkpoint {epoch} saved!')
 
 
@@ -283,9 +283,9 @@ def predict(args, config, net, dataset, device):
     viz_folder = config.viz_path + config.name
     if not os.path.exists(viz_folder):
         os.mkdir(viz_folder)
-    # TODO: Here checkpoint
+    # TODO: Here remove after aug
     # Set submission file
-    submission_path = config.output_path + "submission_" + config.name + '_' + config.patch_combine + '_patch_ttime_aug_checkpoint_BEST_026' + '.csv'
+    submission_path = config.output_path + "submission_" + config.name + '_' + config.patch_combine + '_patch_ttime_aug_checkpoint_30' + '.csv'
     preds = []
     # Iterate through test images and make predictions
     for i, folder in tqdm(enumerate(test_folders)):

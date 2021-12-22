@@ -26,10 +26,13 @@ class BaseDataset(Dataset):
         img_ndarray = img
         if is_test:
             if resize_test:
+                # Resize test image
                 img = img.resize((400, 400), resample=Image.NEAREST if is_mask else Image.BICUBIC)
             img_ndarray = np.asarray(img)
+            # Normalize test image
             img_ndarray = img_ndarray / 255
 
+        # Set correct channels number and order
         if img_ndarray.ndim == 2 and not is_mask:
             img_ndarray = img_ndarray[np.newaxis, ...]
         elif not is_mask:
@@ -37,13 +40,16 @@ class BaseDataset(Dataset):
 
         if not is_test:
             if not is_mask:
+                # Transform pixels to integers and normalize train image
                 rimg = img_ndarray - np.min(img_ndarray)
                 img_ndarray = (rimg / np.max(rimg) * 255).round().astype(np.uint8)
                 img_ndarray = img_ndarray / 255
             else:
+                # Apply threshold on test image, in order to have categorical labels
                 img_ndarray = np.where(img_ndarray > gt_thresh, 1, 0)
 
         if not is_test and pad_size is not None:
+            # Pad images and masks, if training with images of size equal to test images
             if is_mask:
                 img_ndarray = np.pad(img_ndarray, pad_width=((pad_size, pad_size), (pad_size, pad_size)),
                                      mode='symmetric')

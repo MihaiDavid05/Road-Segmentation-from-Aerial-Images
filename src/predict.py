@@ -36,8 +36,7 @@ if __name__ == '__main__':
     dataset = build_dataset(config)
 
     # Load weights
-    # TODO: Here BEST in loc de 30
-    checkpoint_path = 'checkpoints/' + args.model + '/checkpoint_17.pth'
+    checkpoint_path = 'checkpoints/' + args.model + '/checkpoint_BEST.pth'
     net.load_state_dict(torch.load(checkpoint_path, map_location=device))
 
     # Generate prediction

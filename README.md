@@ -98,8 +98,8 @@ In this way, the folder structure will be changed in the following way:
        ├── data  
        |   ├── training
        |   |   ├──  groundtruth
-           |   ├──  groundtruth_augment_3
-           |   ├──  images
+       |   |   ├──  groundtruth_augment_3
+       |   |   ├──  images
        |   |   └──  images_augment_3
        |   └── test_set_images
        |       ├── test_1
@@ -136,7 +136,7 @@ For training and validation run the following commands:
 cd src
 python run.py <config_filename>
 ``` 
-Example for obtaining the BEST RESULTS:
+Example for obtaining the BEST RESULTS (*note* that it takes around 15 hours):
 
 ```bash
 cd src
@@ -154,7 +154,8 @@ python predict.py <config_filename> <model> [OPTIONAL_ARGUMENTS]
 Here, `<model>` refers to a a folder name, under `checkpoints` folder,
 for the corresponding model weights.
 
-Example for obtaining the BEST RESULTS:
+For obtaining the BEST RESULTS you first must *unzip* the weights file under `checkpoints/experiment_BEST` 
+and then run the following command:
 
 ```bash
 cd src
@@ -173,12 +174,10 @@ If you cannot get the right CUDA and PyTorch versions locally, or if you have an
 we also provide a Colab notebook
 where the environment is set exactly as on our local machine, for reproducibility. 
 However, you must first generate the augmented dataset, locally. You can find
-it under `EPFL_ML_project_2.ipynb`. To run the notebook, you must upload the code to your Google Drive account and rename
+the notebook under `EPFL_ML_project_2.ipynb`. To run it, you must upload the code to your Google Drive account and rename
 your PROJECT_ROOT_FOLDER to `EPFL_ML_project_2`.
 
 ## :trophy: Results
-TODO: best checkpoint as experiment_BEST zip file unzip + experiment_BEST config + submission BEST + add readme to doc folder
-
 All submissions will be stored under `results` folder in the file `submission_<config_filename>_avg_patch_ttime_aug.csv`.
 
 The `.csv` uploaded on AICrowd platform can be found under `results/submission_experiment_BEST_avg_patch_ttime_aug.csv`.

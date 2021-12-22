@@ -1,7 +1,2 @@
 # Folders
 /.idea
-/checkpoints
-/runs
-# Files
-*.log
-*.pth

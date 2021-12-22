@@ -283,9 +283,9 @@ def predict(args, config, net, dataset, device):
     viz_folder = config.viz_path + config.name
     if not os.path.exists(viz_folder):
         os.mkdir(viz_folder)
-    # TODO: Here remove after aug
     # Set submission file
-    submission_path = config.output_path + "submission_" + config.name + '_' + config.patch_combine + '_patch_ttime_aug_checkpoint_17' + '.csv'
+    submission_path = config.output_path + "submission_" + config.name + '_' + config.patch_combine +\
+                      '_patch_ttime_aug' + '.csv'
     preds = []
     # Iterate through test images and make predictions
     for i, folder in tqdm(enumerate(test_folders)):

@@ -44,7 +44,7 @@ conda install pytorch torchvision torchaudio cpuonly -c pytorch
 
 For the rest of the libraries use the next command:
 ```bash
-pip install numpy imutils matplotlib opencv-python Pillow PyYAML tensorboard future tqdm
+pip install numpy imutils matplotlib opencv-python Pillow PyYAML tensorboard future tqdm ttach
 ```
 
 ### 2.Set PYTHONPATH

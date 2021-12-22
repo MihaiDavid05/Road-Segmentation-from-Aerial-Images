@@ -176,7 +176,7 @@ it under `EPFL_ML_project_2.ipynb`. To run it, you must upload the code to your 
 your PROJECT_ROOT_FOLDER to `EPFL_ML_project_2`.
 
 ## Results
-TODO: best checkpoint as experiment_BEST zip file.
+TODO: best checkpoint as experiment_BEST zip file and add readme to doc folder
 
 All submissions will be stored under `results` folder in the form `submission_<config_filename>.csv`.
 

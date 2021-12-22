@@ -75,11 +75,11 @@ Targeted folder structure:
 
 ```
 
-## :muscle: Pretrained weights
+## :brain: Pretrained weights
 We use VGG13 pretrained on ImageNet weights. You can download them at [this](https://download.pytorch.org/models/vgg13_bn-abd245e5.pth) link.
 Please place them under `pretrained_weights` folder. 
 
-## :brain: Data augmentations
+## :muscle: Data augmentations
 We use offline data augmentation. Therefore, before starting the training process,
 you must run the following command in order to augment the data:
 ```bash
@@ -143,7 +143,7 @@ cd src
 python run.py experiment_BEST
 ``` 
 A folder with the `config_filename` name will be created under `checkpoints` folder.
-Here you will find the weights of the currently trained model.
+Here you will find the weights of the currently trained model. Our best model can be found under `checkpoints/experiment_BEST`
 
 ### Prediction
 For prediction run the following commands:
@@ -177,7 +177,7 @@ it under `EPFL_ML_project_2.ipynb`. To run the notebook, you must upload the cod
 your PROJECT_ROOT_FOLDER to `EPFL_ML_project_2`.
 
 ## :trophy: Results
-TODO: best checkpoint as experiment_BEST zip file and add readme to doc folder, add icons
+TODO: best checkpoint as experiment_BEST zip file + experiment_BEST config + submission BEST and add readme to doc folder
 
 All submissions will be stored under `results` folder in the file `submission_<config_filename>_avg_patch_ttime_aug.csv`.
 

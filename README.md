@@ -192,3 +192,6 @@ Visual predictions:
 
 ![Prediction](doc/prediction.png)
 
+## Citations
+TODO: Unet si FocalLoss
+

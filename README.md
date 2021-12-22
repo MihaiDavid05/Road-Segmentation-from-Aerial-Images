@@ -39,7 +39,7 @@ conda install pytorch==1.1.0 torchvision==0.3.0 cudatoolkit=9.0 -c pytorch
 
 For the rest of the libraries use the next command:
 ```bash
-pip install numpy imutils matplotlib opencv-python Pillow PyYAML tensorboard future tqdm torchsummary
+pip install numpy imutils matplotlib opencv-python Pillow PyYAML tensorboard future tqdm
 ```
 
 ### 2.Set PYTHONPATH

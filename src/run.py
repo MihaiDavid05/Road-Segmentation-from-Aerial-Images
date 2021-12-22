@@ -3,7 +3,6 @@ import logging
 from utils.builders import *
 from utils.trainval import train
 from torch.utils.tensorboard import SummaryWriter
-from torchsummary import summary
 from utils.helpers import load_pretrain_model, setup
 import numpy as np
 
@@ -37,9 +36,6 @@ if __name__ == '__main__':
     # Build network according to config file and send it to device
     net = build_network(config)
     net.to(device=device)
-
-    # Show network format for a 400x400x3 image input
-    summary(net, (3, 400, 400), 1)
 
     # Build dataset according to config file
     dataset = build_dataset(config)

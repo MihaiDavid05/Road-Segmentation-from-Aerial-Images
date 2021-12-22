@@ -29,7 +29,7 @@ Tested configurations:
 All experiments were run on an `NVIDIA GTX 950M` (4 GB RAM).
 
 ### 1.Libraries installation
-*NOTE*: You should have Anaconda installed.
+*NOTE*: You should have [Anaconda](https://docs.anaconda.com/anaconda/install/windows/) installed.
 
 For PyTorch and torchvision installation use the following command:
 ```bash

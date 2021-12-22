@@ -65,7 +65,7 @@ Targeted folder structure:
        |       └── ...
        ├── checkpoints          <- models weights    
        ├── configs              <- configuration files
-       ├── doc                  <- readme and other documentation files
+       ├── doc                  <- readme and images
        ├── logs                 <- experiments log files
        ├── pretrained_weights   <- pretrained weights
        ├── src                  <- train, predict and data augmentation scripts

@@ -37,7 +37,7 @@ conda install pytorch==1.1.0 torchvision==0.3.0 cudatoolkit=9.0 -c pytorch
 ```
 *NOTE*: Check your CUDA + CuDNN version and PyTorch compatibility.
 
-For PyTorch and torchvision with cpu only installation use the following command:
+For PyTorch and torchvision with cpu only (NOT RECOMMENDED) installation use the following command:
 ```bash
 conda install pytorch torchvision torchaudio cpuonly -c pytorch
 ```

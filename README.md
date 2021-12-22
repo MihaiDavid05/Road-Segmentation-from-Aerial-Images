@@ -2,7 +2,7 @@
 
 Implementation by team CTM. 
 
-## Abstract
+## :mag_right: Abstract
 This repository contains the code for the Road Segmentation challenge on AICrowd. 
 This challenge is a special case of binary semantic segmentation. We must first predict the pixel-wise class 
 (background or road) and then predict the class of each 16x16 patch from a test image, based on an empirical threshold representing
@@ -176,7 +176,7 @@ it under `EPFL_ML_project_2.ipynb`. To run it, you must upload the code to your 
 your PROJECT_ROOT_FOLDER to `EPFL_ML_project_2`.
 
 ## Results
-TODO: best checkpoint as experiment_BEST zip file and add readme to doc folder
+TODO: best checkpoint as experiment_BEST zip file and add readme to doc folder, add icons
 
 All submissions will be stored under `results` folder in the form `submission_<config_filename>_avg_patch_ttime_aug.csv`.
 

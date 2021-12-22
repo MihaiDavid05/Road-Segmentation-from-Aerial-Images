@@ -8,6 +8,14 @@ This challenge is a special case of binary semantic segmentation. We must first 
 (background or road) and then predict the class of each 16x16 patch from a test image, based on an empirical threshold representing
 the percentage of segmented road pixels in a patch. 
 
+Key features of our approach:
+* data augmentations
+* UNet architecture with bilinear upsampling layers
+in the upsampling branch and a pretrained VGG13 network in the downsampling branch
+* added dropout after each upsampling or downsampling block
+* split test image in 4 patches of 400x400 pixels and average predictions to get 608x608 original test image
+* test time augmentations
+
 ## Environment setup
 For our experiments we used PyCharm IDE.
 Tested configurations: 
@@ -31,7 +39,7 @@ conda install pytorch==1.1.0 torchvision==0.3.0 cudatoolkit=9.0 -c pytorch
 
 For the rest of the libraries use the next command:
 ```bash
-pip install numpy imutils matplotlib opencv-python Pillow PyYAML tensorboard 
+pip install numpy imutils matplotlib opencv-python Pillow PyYAML tensorboard future tqdm
 ```
 
 ### 2.Set PYTHONPATH
@@ -164,14 +172,17 @@ tensorboard --logdir=logs/<config_filename>
 If you cannot get the right CUDA and PyTorch versions locally, or if you have any other compatibility issues,
 we also provide a Colab notebook
 where the environment is set exactly as on our local machine, for reproducibility. You can find
-it under `project_notebook.ipynb`. To run it, you must upload the code to your Google Drive account.
+it under `EPFL_ML_project_2.ipynb`. To run it, you must upload the code to your Google Drive account and rename
+your PROJECT_ROOT_FOLDER to `EPFL_ML_project_2`.
 
 ## Results
+TODO: best checkpoint as experiment_BEST zip file.
 
 All submissions will be stored under `results` folder in the form `submission_<config_filename>.csv`.
 
+The `.csv` uploaded on AICrowd platform can be found under `results/submission_BEST.csv`.
 
-Prediction files were submitted to AICrowd platform. These are our best results:
+These were our best results:
 
 | F1-Score    | Accuracy    |
 | ----------- | ----------- |
@@ -179,5 +190,5 @@ Prediction files were submitted to AICrowd platform. These are our best results:
 
 Visual predictions:
 
-![Prediction](doc/prediction_6.png) ![Original image](doc/gt_6.png)
+![Prediction](doc/prediction.png)
 

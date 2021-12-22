@@ -65,11 +65,11 @@ Targeted folder structure:
        |       └── ...
        ├── checkpoints          <- models weights    
        ├── configs              <- configuration files
-       ├── doc                  <- readme  and other documentation files
+       ├── doc                  <- readme and other documentation files
        ├── logs                 <- experiments log files
        ├── pretrained_weights   <- pretrained weights
        ├── src                  <- train, predict and data augmentation scripts
-       ├── utils                <- multiple utility scripts grouoped by functionality
+       ├── utils                <- multiple utility scripts grouped by functionality
        ├── results              <- submission files
        └── visualizations       <- predictions output folder
 
@@ -171,14 +171,15 @@ tensorboard --logdir=logs/<config_filename>
 ## Google Colab Notebook
 If you cannot get the right CUDA and PyTorch versions locally, or if you have any other compatibility issues,
 we also provide a Colab notebook
-where the environment is set exactly as on our local machine, for reproducibility. You can find
-it under `EPFL_ML_project_2.ipynb`. To run it, you must upload the code to your Google Drive account and rename
+where the environment is set exactly as on our local machine, for reproducibility. 
+However, you must first generate the augmented dataset, locally. You can find
+it under `EPFL_ML_project_2.ipynb`. To run the notebook, you must upload the code to your Google Drive account and rename
 your PROJECT_ROOT_FOLDER to `EPFL_ML_project_2`.
 
 ## Results
 TODO: best checkpoint as experiment_BEST zip file and add readme to doc folder, add icons
 
-All submissions will be stored under `results` folder in the form `submission_<config_filename>_avg_patch_ttime_aug.csv`.
+All submissions will be stored under `results` folder in the file `submission_<config_filename>_avg_patch_ttime_aug.csv`.
 
 The `.csv` uploaded on AICrowd platform can be found under `results/submission_experiment_BEST_avg_patch_ttime_aug.csv`.
 

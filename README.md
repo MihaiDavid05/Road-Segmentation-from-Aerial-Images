@@ -154,7 +154,8 @@ python predict.py <config_filename> <model> [OPTIONAL_ARGUMENTS]
 Here, `<model>` refers to a a folder name, under `checkpoints` folder,
 for the corresponding model weights.
 
-For obtaining the BEST RESULTS you first must *unzip* the weights file under `checkpoints/experiment_BEST` 
+For obtaining the BEST RESULTS you first must download the weights from 
+[this](https://drive.google.com/drive/folders/1BWNHppI31-Cc7nggMAW_kVfOhsIhgzFQ?usp=sharing) link and place them under `checkpoints/experiment_BEST`.
 and then run the following command:
 
 ```bash

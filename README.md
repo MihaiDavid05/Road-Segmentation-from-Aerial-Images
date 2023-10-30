@@ -1,7 +1,5 @@
 # EPFL ML Project 2 - Road Segmentation
 
-Implementation by team CTM. 
-
 ## :mag_right: Abstract
 This repository contains the code for the Road Segmentation challenge on AICrowd. 
 This challenge is a case of binary semantic segmentation. We must first predict the pixel-wise class 
